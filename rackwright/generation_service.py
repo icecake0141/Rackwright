@@ -42,6 +42,17 @@ from rackwright.view_builders import cablings_for_project
 
 VALID_MODES = {"all", "word", "excel", "images"}
 
+TEMPLATE_CATEGORY_ORDER = [
+    "preconditions",
+    "safety",
+    "network",
+    "power",
+    "physical",
+    "cutover",
+    "rollback",
+    "postcheck",
+]
+
 
 @dataclass
 class GenerationResult:
@@ -599,7 +610,7 @@ def _write_word(
 def _operation_steps_from_rendered_sections(
     rendered_sections: list[dict[str, str]],
 ) -> list[dict[str, str]]:
-    steps: list[dict[str, str]] = []
+    section_rows: list[dict[str, str]] = []
     for section in rendered_sections:
         targets = json.loads(section["output_targets"])
         if "excel" not in targets and "word" not in targets:
@@ -607,10 +618,27 @@ def _operation_steps_from_rendered_sections(
         text = (section["text"] or "").strip()
         if not text:
             continue
+        section_rows.append(
+            {
+                "category": section["category"],
+                "text": text,
+            }
+        )
+
+    section_rows.sort(
+        key=lambda row: (
+            _template_category_priority(row["category"]),
+            row["category"].lower(),
+            row["text"],
+        )
+    )
+
+    steps: list[dict[str, str]] = []
+    for row in section_rows:
         steps.append(
             {
-                "phase": "execution",
-                "action": text,
+                "phase": _phase_from_template_category(row["category"]),
+                "action": row["text"],
                 "expected_result": "Section content is applied and verified.",
                 "rollback_hint": "Revert section-level change and re-validate.",
             }
@@ -625,6 +653,47 @@ def _operation_steps_from_rendered_sections(
             }
         )
     return steps
+
+
+def _template_category_priority(category: str) -> int:
+    normalized = category.strip().lower().replace(" ", "")
+    for index, keyword in enumerate(TEMPLATE_CATEGORY_ORDER):
+        if keyword in normalized:
+            return index
+    return len(TEMPLATE_CATEGORY_ORDER)
+
+
+def _phase_from_template_category(category: str) -> str:
+    normalized = category.strip().lower().replace(" ", "")
+    if "pre" in normalized or "safety" in normalized:
+        return "pre-check"
+    if "power" in normalized:
+        return "power-execution"
+    if "physical" in normalized:
+        return "physical-execution"
+    if "cutover" in normalized:
+        return "cutover"
+    if "post" in normalized or "verify" in normalized:
+        return "post-check"
+    if "rollback" in normalized:
+        return "rollback"
+    return "execution"
+
+
+def _verification_method_for_phase(phase: str) -> str:
+    if phase == "pre-check":
+        return "Confirm permit/scope/safety constraints before execution"
+    if phase == "power-execution":
+        return "Validate bank/outlet mapping and power safety checks"
+    if phase == "physical-execution":
+        return "Validate rack placement, RU position, and orientation"
+    if phase == "cutover":
+        return "Validate cutover order and service continuity checks"
+    if phase == "post-check":
+        return "Run post-work health checks and evidence capture"
+    if phase == "rollback":
+        return "Confirm rollback path and restoration checkpoints"
+    return "Verify execution result against work instruction"
 
 
 def _combined_operation_steps(
@@ -767,7 +836,7 @@ def _write_excel(
         ws_verification.append(
             [
                 f"Step {step['step_no']} completed",
-                f"Verify: {step['expected_result']}",
+                _verification_method_for_phase(str(step["phase"])),
                 "PENDING",
                 "",
                 "",

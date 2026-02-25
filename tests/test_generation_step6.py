@@ -377,3 +377,88 @@ def test_generate_excel_includes_field_operation_sheets(tmp_path: Path) -> None:
 
         issue_log = wb["issue_log"]
         assert issue_log.cell(row=1, column=4).value == "issue"
+
+
+def test_template_categories_map_to_operation_phases_and_priority(
+    tmp_path: Path,
+) -> None:
+    os.environ["RACKWRIGHT_DATA_DIR"] = str(tmp_path)
+    with _new_session() as session:
+        template_set = TemplateSet(name="phase-ts")
+        session.add(template_set)
+        session.flush()
+        session.add_all(
+            [
+                TemplateSection(
+                    template_set_id=template_set.id,
+                    target_type="Project",
+                    category="Cutover",
+                    section_order=1,
+                    output_targets='["excel"]',
+                    applicable_roles=None,
+                    text="execute cutover sequence",
+                ),
+                TemplateSection(
+                    template_set_id=template_set.id,
+                    target_type="Project",
+                    category="Power",
+                    section_order=1,
+                    output_targets='["excel"]',
+                    applicable_roles=None,
+                    text="verify pdu feed",
+                ),
+                TemplateSection(
+                    template_set_id=template_set.id,
+                    target_type="Project",
+                    category="Preconditions",
+                    section_order=1,
+                    output_targets='["excel"]',
+                    applicable_roles=None,
+                    text="confirm permit",
+                ),
+            ]
+        )
+        session.flush()
+
+        project = create_project_from_template_set(
+            session,
+            project_name="phase-project",
+            owner=None,
+            notes=None,
+            template_set_id=template_set.id,
+        )
+        session.commit()
+
+        result = generate(session, project.id, "excel", None, "phase-run")
+        session.commit()
+
+        excel_file = (
+            session.query(ArtifactFile)
+            .filter(
+                ArtifactFile.artifact_version_id == result.artifact_version.id,
+                ArtifactFile.artifact_type == "excel",
+            )
+            .one()
+        )
+        wb = load_workbook(tmp_path / excel_file.relative_path)
+        work_steps = wb["work_steps"]
+
+        template_rows = [
+            (
+                work_steps.cell(row=i, column=3).value,
+                work_steps.cell(row=i, column=4).value,
+            )
+            for i in range(2, work_steps.max_row + 1)
+            if work_steps.cell(row=i, column=4).value
+            and (
+                "confirm permit" in work_steps.cell(row=i, column=4).value
+                or "verify pdu feed" in work_steps.cell(row=i, column=4).value
+                or "execute cutover sequence" in work_steps.cell(row=i, column=4).value
+            )
+        ]
+
+        assert template_rows == [
+            ("pre-check", "confirm permit"),
+            ("power-execution", "verify pdu feed"),
+            ("cutover", "execute cutover sequence"),
+        ]
