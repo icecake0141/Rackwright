@@ -3,9 +3,9 @@
 ## Step 7 -- Diff Generation and Marking
 
 ### Acceptance Criteria
-- [ ] Measurable: Diff between two versions produces Excel diff list + Word diff summary and persists `DiffReport`/`DiffItem` records; changed Excel cells and Word paragraphs are marked.
-- [ ] Verification: Run diff test with known content changes and assert both Excel and Word diff artifacts (`tests/test_diff_step7.py`).
-- [ ] Evidence: `rackwright/diff_service.py`, diff artifacts (`diff_excel`, `diff_word`), and passing test output.
+- [x] Measurable: Diff between two versions produces Excel diff list + Word diff summary and persists `DiffReport`/`DiffItem` records; changed Excel cells and Word paragraphs are marked.
+- [x] Verification: Run diff test with known content changes and assert both Excel and Word diff artifacts (`tests/test_diff_step7.py`).
+- [x] Evidence: `rackwright/diff_service.py`, diff artifacts (`diff_excel`, `diff_word`), and passing test output.
 
 35. Implement diff(from_version, to_version) for Word and Excel
     artifacts.

@@ -3,9 +3,9 @@
 ## Step 8 -- Web UI (Server-side)
 
 ### Acceptance Criteria
-- [ ] Measurable: Server-side UI provides dashboard/project/rack/device/cabling/generate/versions/errors flows with CSV import-export, conflict actions, and jump navigation.
-- [ ] Verification: Execute UI integration tests for core flows, filters, hierarchy display, and conflict behavior (`tests/test_web_ui_step8.py`).
-- [ ] Evidence: `rackwright/app.py`, `rackwright/templates/*.html`, and passing UI test output.
+- [x] Measurable: Server-side UI provides dashboard/project/rack/device/cabling/generate/versions/errors flows with CSV import-export, conflict actions, and jump navigation.
+- [x] Verification: Execute UI integration tests for core flows, filters, hierarchy display, and conflict behavior (`tests/test_web_ui_step8.py`).
+- [x] Evidence: `rackwright/app.py`, `rackwright/templates/*.html`, and passing UI test output.
 
 40. Dashboard: list projects; create project from template; show latest
     artifact version.
@@ -35,9 +35,9 @@
 ## Gate A -- Schema + Logging
 
 ### Acceptance Criteria
-- [ ] Measurable: Schema migrates cleanly and change logs are produced for edit/import flows with unique key enforcement.
-- [ ] Verification: Run migration + change logging + CSV normalization tests.
-- [ ] Evidence: `tests/test_migration_step1.py`, `tests/test_change_logging_step2.py`, `tests/test_csv_services_step3.py` results.
+- [x] Measurable: Schema migrates cleanly and change logs are produced for edit/import flows with unique key enforcement.
+- [x] Verification: Run migration + change logging + CSV normalization tests.
+- [x] Evidence: `tests/test_migration_step1.py`, `tests/test_change_logging_step2.py`, `tests/test_csv_services_step3.py` results.
 
 -   All migrations apply on empty DB.
 
@@ -48,9 +48,9 @@
 ## Gate B -- CSV Workflow
 
 ### Acceptance Criteria
-- [ ] Measurable: CSV import/export follows required schema; unknown-device confirmation and merge-no-delete behavior are enforced.
-- [ ] Verification: Run CSV service + UI CSV flow tests.
-- [ ] Evidence: `tests/test_csv_services_step3.py`, `tests/test_web_ui_step8.py` outputs.
+- [x] Measurable: CSV import/export follows required schema; unknown-device confirmation and merge-no-delete behavior are enforced.
+- [x] Verification: Run CSV service + UI CSV flow tests.
+- [x] Evidence: `tests/test_csv_services_step3.py`, `tests/test_web_ui_step8.py` outputs.
 
 -   CSV export matches schema.
 
@@ -63,9 +63,9 @@
 ## Gate C -- Generation
 
 ### Acceptance Criteria
-- [ ] Measurable: Generation writes DB metadata + filesystem artifacts for all/by-type, keeps idempotency, and records partial-failure errors.
-- [ ] Verification: Run generation and UI generation tests.
-- [ ] Evidence: `tests/test_generation_step6.py`, `tests/test_web_ui_step8.py` outputs and generated files under `data/projects/...`.
+- [x] Measurable: Generation writes DB metadata + filesystem artifacts for all/by-type, keeps idempotency, and records partial-failure errors.
+- [x] Verification: Run generation and UI generation tests.
+- [x] Evidence: `tests/test_generation_step6.py`, `tests/test_web_ui_step8.py` outputs and generated files under `data/projects/...`.
 
 -   All/ByType generation produces filesystem artifacts and DB metadata
     rows.
@@ -79,9 +79,9 @@
 ## Gate D -- Diff
 
 ### Acceptance Criteria
-- [ ] Measurable: Diff generation between versions outputs Excel+Word diff artifacts with persisted itemized changes.
-- [ ] Verification: Run diff unit/integration test with known modified cell/text.
-- [ ] Evidence: `tests/test_diff_step7.py` output and generated diff files.
+- [x] Measurable: Diff generation between versions outputs Excel+Word diff artifacts with persisted itemized changes.
+- [x] Verification: Run diff unit/integration test with known modified cell/text.
+- [x] Evidence: `tests/test_diff_step7.py` output and generated diff files.
 
 -   Diff between any two versions produces diff Excel list and Word
     summary.
@@ -94,9 +94,9 @@
 ## Gate E -- UI
 
 ### Acceptance Criteria
-- [ ] Measurable: Main pages respond without 500 errors, downloads and jump links function, and core routes are covered by automated tests.
-- [ ] Verification: Run web UI integration tests and smoke requests.
-- [ ] Evidence: `tests/test_web_ui_step8.py` output and gate execution records.
+- [x] Measurable: Main pages respond without 500 errors, downloads and jump links function, and core routes are covered by automated tests.
+- [x] Verification: Run web UI integration tests and smoke requests.
+- [x] Evidence: `tests/test_web_ui_step8.py` output and gate execution records.
 
 -   All core flows work without JS-heavy logic (server-side).
 

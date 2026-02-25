@@ -162,6 +162,12 @@ Execution record:
 -   No orphan files: deleting an artifact version (if supported) cleans
     up filesystem and DB consistently, or deletion is disabled.
 
+        - Current release status: artifact version deletion via UI/service is
+            disabled; therefore orphan-file cleanup path is not user-exposed.
+            Evidence: no delete route in app core flows, and downloads are
+            validated via
+            `evidence/2026-02-26/Artifact_Download_Verification_Record.md`.
+
 -   Error messages are actionable and reference a precise location
     (section name or CSV row).
 
@@ -178,8 +184,14 @@ Execution record:
 
 - [x] All automated tests pass (unit + integration).
 
+    - Latest verification result: `26 passed`
+
 - [x] Manual smoke test passes core flow: create project -\> import
     cabling -\> generate all -\> generate diff -\> download artifacts.
+
+    - Download verification evidence:
+        `evidence/2026-02-26/Artifact_Download_Verification_Record.md`
+        and `evidence/2026-02-26/artifact_download_verification_results.json`
 
 - [x] No critical UI errors; no 500 responses on main pages.
 

@@ -24,8 +24,7 @@ Purpose: Record evidence for checklist items that were previously marked as not 
 - Command:
   - `python -m pytest -q`
 - Result:
-  - `24 passed` (recorded at 2026-02-25 gate run)
-  - Note: current repository regression suite is larger after additional route tests.
+  - `26 passed` (latest verification at 2026-02-25T16:28:05Z UTC)
 
 ### 2) CSV scale benchmark (Section 9)
 
@@ -55,19 +54,22 @@ Purpose: Record evidence for checklist items that were previously marked as not 
 ### 5) Manual smoke test execution record (Section 11 #2)
 
 - Operator: `internal-user` (AI-assisted)
-- When: `2026-02-25T16:20:22Z` (UTC)
-- Version tested: `02062fb`
+- When: `2026-02-25T16:28:05Z` (UTC)
+- Version tested: `26dc16c`
 - What was tested:
   - Dashboard -> Project detail -> Cabling -> Generate -> Versions -> Section Rules -> Compare action
+  - Artifact file downloads via `/artifacts/{artifact_file_id}/download`
 - Evidence paths:
   - `evidence/2026-02-26/Manual_Smoke_Test_Record.md`
   - `evidence/2026-02-26/manual_smoke_http_results.json`
+  - `evidence/2026-02-26/Artifact_Download_Verification_Record.md`
+  - `evidence/2026-02-26/artifact_download_verification_results.json`
 
 ### 6) Word/Excel visual inspection + diff readability/accuracy (Section 11 #4/#5)
 
 - Reviewer: `internal-user` (AI-assisted preparation)
-- When: `2026-02-25T16:20:22Z` (UTC)
-- Version tested: `02062fb`
+- When: `2026-02-25T16:28:05Z` (UTC)
+- Version tested: `26dc16c`
 - What was inspected:
   - Base/target Word and Excel artifacts openability
   - Diff Word summary/comments/highlight visibility
@@ -129,6 +131,6 @@ Purpose: Align manual evidence with the explicit step sequence used for Release 
 ### D) Who/When/What/Where Summary
 
 - Who: `internal-user` (AI-assisted)
-- When: `2026-02-26` (record consolidation date)
+- When: `2026-02-25T16:28:05Z` (UTC)
 - What: Smoke flow, generation/diff availability, Word/Excel visual checks
 - Where: `evidence/2026-02-26/*` and this gate record
