@@ -53,7 +53,7 @@ Purpose: Record evidence for checklist items that were previously marked as not 
 
 ### 5) Manual smoke test execution record (Section 11 #2)
 
-- Operator: `internal-user` (AI-assisted)
+- Operator: `internal operator` (AI-assisted)
 - When: `2026-02-25T16:28:05Z` (UTC)
 - Version tested: `26dc16c`
 - What was tested:
@@ -67,7 +67,7 @@ Purpose: Record evidence for checklist items that were previously marked as not 
 
 ### 6) Word/Excel visual inspection + diff readability/accuracy (Section 11 #4/#5)
 
-- Reviewer: `internal-user` (AI-assisted preparation)
+- Reviewer: `internal reviewer` (AI-assisted preparation)
 - When: `2026-02-25T16:28:05Z` (UTC)
 - Version tested: `26dc16c`
 - What was inspected:
@@ -130,7 +130,7 @@ Purpose: Align manual evidence with the explicit step sequence used for Release 
 
 ### D) Who/When/What/Where Summary
 
-- Who: `internal-user` (AI-assisted)
+- Who: `internal operator/reviewer` (AI-assisted)
 - When: `2026-02-25T16:28:05Z` (UTC)
 - What: Smoke flow, generation/diff availability, Word/Excel visual checks
 - Where: `evidence/2026-02-26/*` and this gate record
