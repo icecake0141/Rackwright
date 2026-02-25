@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><title>Generate {{ project.name }}</title></head>
+<body>
+  <h1>Generate: {{ project.name }}</h1>
+  {% if message %}<p><strong>{{ message }}</strong></p>{% endif %}
+
+  <form method="post">
+    <label>Mode
+      <select name="mode">
+        <option value="all">all</option>
+        <option value="word">word</option>
+        <option value="excel">excel</option>
+        <option value="images">images</option>
+      </select>
+    </label><br>
+    <label>Remarks <input name="remarks"></label><br>
+    <label>Base Version
+      <select name="base_version_id">
+        <option value="">(none)</option>
+        {% for v in versions %}
+          <option value="{{ v.id }}">v{{ v.version_number }}</option>
+        {% endfor %}
+      </select>
+    </label><br>
+    <label>Conflict Handling
+      <select name="conflict_action">
+        <option value="stop">stop</option>
+        <option value="force">force</option>
+        <option value="save-and-regenerate">save-and-regenerate</option>
+      </select>
+    </label><br>
+    <button type="submit">Generate</button>
+  </form>
+
+  <p><a href="{{ url_for('project_versions', project_id=project.id) }}">Versions</a></p>
+  <p><a href="{{ url_for('project_detail', project_id=project.id) }}">Back to Project</a></p>
+</body>
+</html>

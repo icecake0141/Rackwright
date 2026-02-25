@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><title>Errors {{ project.name }}</title></head>
+<body>
+  <h1>Generation Errors: {{ project.name }}</h1>
+  {% for version, errors in version_errors %}
+    <h2>Version {{ version.version_number }}</h2>
+    <ul>
+      {% for err in errors %}
+        <li>
+          [{{ err.type }}] {{ err.message }}
+          {% if err.jump_target %}
+            <a href="{{ url_for('errors_jump', project_id=project.id, kind=err.jump_target.kind, value=err.jump_target.value) }}">jump</a>
+          {% endif %}
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p>No errors.</p>
+  {% endfor %}
+  <p><a href="{{ url_for('project_detail', project_id=project.id) }}">Back to Project</a></p>
+</body>
+</html>

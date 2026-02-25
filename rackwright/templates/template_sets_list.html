@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Template Sets</title>
+</head>
+<body>
+  <h1>Template Sets</h1>
+  <p><a href="{{ url_for('template_set_new') }}">Create Template Set</a></p>
+  <ul>
+    {% for template_set in template_sets %}
+      <li>
+        <a href="{{ url_for('template_set_edit', template_set_id=template_set.id) }}">{{ template_set.name }}</a>
+      </li>
+    {% else %}
+      <li>No template sets.</li>
+    {% endfor %}
+  </ul>
+</body>
+</html>
