@@ -3,9 +3,9 @@
 ## Step 5 -- View Model Builder
 
 ### Acceptance Criteria
-- [ ] Criteria 1: Define measurable condition for this section.
-- [ ] Criteria 2: Include validation method (test, review, or evidence).
-- [ ] Criteria 3: State completion artifacts (files, screenshots, outputs).
+- [ ] Measurable: Deterministic Python-side view builders return ordered/filtered structures for rack devices, project cablings, and rack power cablings.
+- [ ] Verification: Execute view builder determinism/content tests (`tests/test_view_builders_step5.py`).
+- [ ] Evidence: `rackwright/view_builders.py` and passing test output.
 
 23. Implement view builders: devices_in_rack, cablings_for_project,
     power_cablings_for_rack, etc.

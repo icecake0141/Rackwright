@@ -25,6 +25,7 @@ from rackwright.models import (
     Rack,
     Room,
     Row,
+    SectionApplicationRule,
     Site,
     TemplateSet,
 )
@@ -454,3 +455,141 @@ def test_generation_conflict_actions_have_distinct_behaviors(
         )
     assert count_after_save == initial_count + 2
     assert revision_after_save == initial_revision + 1
+
+
+def test_section_rule_routes_support_get_and_post_update(
+    client, tmp_path: Path
+) -> None:
+    db_url = f"sqlite:///{tmp_path / 'ui.db'}"
+    template_set_id, _ = _seed_template(db_url)
+
+    res = client.post(
+        "/projects/new",
+        data={
+            "project_name": "rules-project",
+            "owner": "owner",
+            "notes": "n",
+            "template_set_id": str(template_set_id),
+        },
+        follow_redirects=False,
+    )
+    assert res.status_code in (302, 303)
+    project_id = int(res.headers["Location"].rstrip("/").split("/")[-1])
+
+    rules_page = client.get(f"/projects/{project_id}/section-rules")
+    assert rules_page.status_code == 200
+    assert b"Section Rules" in rules_page.data
+
+    engine = create_engine(db_url, future=True)
+    with Session(engine) as session:
+        rule = (
+            session.query(SectionApplicationRule)
+            .filter(SectionApplicationRule.project_id == project_id)
+            .first()
+        )
+        assert rule is not None
+        rule_id = rule.id
+
+    edit_page = client.get(f"/projects/{project_id}/section-rules/{rule_id}/edit")
+    assert edit_page.status_code == 200
+    assert b"Edit Rule" in edit_page.data
+
+    update_res = client.post(
+        f"/projects/{project_id}/section-rules/{rule_id}/update",
+        data={
+            "role_values": "Server, Switch",
+            "rack_scope_values": "rack-a, 1",
+        },
+        follow_redirects=False,
+    )
+    assert update_res.status_code in (302, 303)
+
+    with Session(engine) as session:
+        updated = session.get(SectionApplicationRule, rule_id)
+        assert updated is not None
+        assert updated.enabled is False
+        assert updated.filters_json is not None
+        assert "Server" in updated.filters_json
+        assert "rack-a" in updated.filters_json
+
+
+def test_project_detail_can_edit_site_room_row(client, tmp_path: Path) -> None:
+    db_url = f"sqlite:///{tmp_path / 'ui.db'}"
+    template_set_id, _ = _seed_template(db_url)
+
+    res = client.post(
+        "/projects/new",
+        data={
+            "project_name": "hier-edit-project",
+            "owner": "owner",
+            "notes": "n",
+            "template_set_id": str(template_set_id),
+        },
+        follow_redirects=False,
+    )
+    assert res.status_code in (302, 303)
+    project_id = int(res.headers["Location"].rstrip("/").split("/")[-1])
+
+    engine = create_engine(db_url, future=True)
+    with Session(engine) as session:
+        site = Site(project_id=project_id, name="site-old")
+        session.add(site)
+        session.flush()
+        room = Room(site_id=site.id, name="room-old")
+        session.add(room)
+        session.flush()
+        row = Row(room_id=room.id, name="row-old")
+        session.add(row)
+        session.commit()
+        site_id = site.id
+        room_id = room.id
+        row_id = row.id
+
+    page = client.get(f"/projects/{project_id}")
+    assert page.status_code == 200
+    assert b"Edit Site" in page.data
+    assert b"Edit Room" in page.data
+    assert b"Edit Row" in page.data
+
+    client.post(
+        f"/projects/{project_id}",
+        data={
+            "action": "update_site",
+            "site_id": str(site_id),
+            "site_name": "site-new",
+            "site_address": "addr",
+            "site_entry_procedure": "entry",
+            "site_contact_info": "contact",
+        },
+        follow_redirects=False,
+    )
+    client.post(
+        f"/projects/{project_id}",
+        data={
+            "action": "update_room",
+            "room_id": str(room_id),
+            "room_name": "room-new",
+        },
+        follow_redirects=False,
+    )
+    client.post(
+        f"/projects/{project_id}",
+        data={
+            "action": "update_row",
+            "row_id": str(row_id),
+            "row_name": "row-new",
+        },
+        follow_redirects=False,
+    )
+
+    with Session(engine) as session:
+        updated_site = session.get(Site, site_id)
+        updated_room = session.get(Room, room_id)
+        updated_row = session.get(Row, row_id)
+        assert updated_site is not None
+        assert updated_room is not None
+        assert updated_row is not None
+        assert updated_site.name == "site-new"
+        assert updated_site.address == "addr"
+        assert updated_room.name == "room-new"
+        assert updated_row.name == "row-new"

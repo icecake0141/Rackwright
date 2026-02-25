@@ -3,9 +3,9 @@
 ## Step 6 -- Artifact Generation
 
 ### Acceptance Criteria
-- [ ] Criteria 1: Define measurable condition for this section.
-- [ ] Criteria 2: Include validation method (test, review, or evidence).
-- [ ] Criteria 3: State completion artifacts (files, screenshots, outputs).
+- [ ] Measurable: `generate()` supports all/by-type modes, fingerprint idempotency, versioned filesystem output, and partial-failure error persistence with jump targets.
+- [ ] Verification: Run generation tests for all outputs, idempotency, filter scope, and partial failure handling (`tests/test_generation_step6.py`).
+- [ ] Evidence: `rackwright/generation_service.py`, generated artifact paths under `data/projects/...`, and passing test output.
 
 26. Implement generation entrypoint: generate(project_id, mode,
     base_version_id, remarks).

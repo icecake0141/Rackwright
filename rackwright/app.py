@@ -39,8 +39,11 @@ from rackwright.models import (
     Rack,
     Room,
     Row,
+    SectionApplicationRule,
+    SectionSnapshot,
     Site,
     TemplateSet,
+    TemplateSetSnapshot,
 )
 from rackwright.template_services import (
     create_project_from_template_set,
@@ -122,9 +125,46 @@ def create_app(database_url: str = "sqlite:///./rackwright.db") -> Flask:
                 return ("Not Found", 404)
 
             if request.method == "POST":
-                project.name = request.form.get("name", project.name).strip()
-                project.owner = request.form.get("owner", "").strip() or None
-                project.notes = request.form.get("notes", "").strip() or None
+                action = request.form.get("action", "save_project")
+                if action == "save_project":
+                    project.name = request.form.get("name", project.name).strip()
+                    project.owner = request.form.get("owner", "").strip() or None
+                    project.notes = request.form.get("notes", "").strip() or None
+                elif action == "update_site":
+                    site_id = int(request.form.get("site_id", "0"))
+                    site = session.get(Site, site_id)
+                    if site is not None and site.project_id == project_id:
+                        site.name = request.form.get("site_name", site.name).strip()
+                        site.address = (
+                            request.form.get("site_address", "").strip() or None
+                        )
+                        site.entry_procedure = (
+                            request.form.get("site_entry_procedure", "").strip() or None
+                        )
+                        site.contact_info = (
+                            request.form.get("site_contact_info", "").strip() or None
+                        )
+                elif action == "update_room":
+                    room_id = int(request.form.get("room_id", "0"))
+                    room = session.get(Room, room_id)
+                    if (
+                        room is not None
+                        and room.site is not None
+                        and room.site.project_id == project_id
+                    ):
+                        room.name = request.form.get("room_name", room.name).strip()
+                elif action == "update_row":
+                    row_id = int(request.form.get("row_id", "0"))
+                    row_obj = session.get(Row, row_id)
+                    if (
+                        row_obj is not None
+                        and row_obj.room is not None
+                        and row_obj.room.site is not None
+                        and row_obj.room.site.project_id == project_id
+                    ):
+                        row_obj.name = request.form.get(
+                            "row_name", row_obj.name
+                        ).strip()
                 session.commit()
                 return redirect(url_for("project_detail", project_id=project_id))
 
@@ -227,6 +267,126 @@ def create_app(database_url: str = "sqlite:///./rackwright.db") -> Flask:
                 hierarchy_tree=hierarchy_tree,
                 unassigned_racks=unassigned_racks,
                 unassigned_devices=unassigned_devices,
+            )
+
+    @app.route("/projects/<int:project_id>/section-rules")
+    def project_section_rules(project_id: int):
+        with Session(engine) as session:
+            project = session.get(Project, project_id)
+            if project is None:
+                return ("Not Found", 404)
+
+            sections = (
+                session.execute(
+                    select(SectionSnapshot)
+                    .join(
+                        TemplateSetSnapshot,
+                        TemplateSetSnapshot.id
+                        == SectionSnapshot.template_set_snapshot_id,
+                    )
+                    .where(TemplateSetSnapshot.project_id == project_id)
+                    .order_by(
+                        SectionSnapshot.category,
+                        SectionSnapshot.section_order,
+                        SectionSnapshot.id,
+                    )
+                )
+                .scalars()
+                .all()
+            )
+            rules = (
+                session.execute(
+                    select(SectionApplicationRule)
+                    .where(SectionApplicationRule.project_id == project_id)
+                    .order_by(SectionApplicationRule.section_snapshot_id)
+                )
+                .scalars()
+                .all()
+            )
+            rules_by_section = {rule.section_snapshot_id: rule for rule in rules}
+            rows = []
+            for section in sections:
+                rule = rules_by_section.get(section.id)
+                if rule is None:
+                    continue
+                rows.append({"section": section, "rule": rule})
+
+            return render_template(
+                "project_section_rules.html",
+                project=project,
+                rows=rows,
+            )
+
+    @app.route("/projects/<int:project_id>/section-rules/<int:rule_id>/edit")
+    def project_section_rule_edit(project_id: int, rule_id: int):
+        with Session(engine) as session:
+            project = session.get(Project, project_id)
+            if project is None:
+                return ("Not Found", 404)
+
+            rule = session.get(SectionApplicationRule, rule_id)
+            if rule is None or rule.project_id != project_id:
+                return ("Not Found", 404)
+
+            section = session.get(SectionSnapshot, rule.section_snapshot_id)
+            if section is None:
+                return ("Not Found", 404)
+
+            filters = {}
+            if rule.filters_json:
+                parsed = json.loads(rule.filters_json)
+                if isinstance(parsed, dict):
+                    filters = parsed
+
+            role_values = filters.get("role", [])
+            rack_scope_values = filters.get("rack_scope", [])
+
+            return render_template(
+                "project_section_rules.html",
+                project=project,
+                rows=[{"section": section, "rule": rule}],
+                edit_rule=rule,
+                edit_section=section,
+                role_values=", ".join([str(x) for x in role_values]),
+                rack_scope_values=", ".join([str(x) for x in rack_scope_values]),
+            )
+
+    @app.route(
+        "/projects/<int:project_id>/section-rules/<int:rule_id>/update",
+        methods=["POST"],
+    )
+    def project_section_rule_update(project_id: int, rule_id: int):
+        with Session(engine) as session:
+            rule = session.get(SectionApplicationRule, rule_id)
+            if rule is None or rule.project_id != project_id:
+                return ("Not Found", 404)
+
+            enabled = request.form.get("enabled", "0") == "1"
+            role_values = [
+                value.strip()
+                for value in request.form.get("role_values", "").split(",")
+                if value.strip()
+            ]
+            rack_scope_values = [
+                value.strip()
+                for value in request.form.get("rack_scope_values", "").split(",")
+                if value.strip()
+            ]
+            filters = {}
+            if role_values:
+                filters["role"] = role_values
+            if rack_scope_values:
+                filters["rack_scope"] = rack_scope_values
+
+            rule.enabled = enabled
+            rule.filters_json = (
+                json.dumps(filters, ensure_ascii=False) if filters else None
+            )
+            session.commit()
+            return redirect(
+                url_for(
+                    "project_section_rule_edit", project_id=project_id, rule_id=rule_id
+                )
             )
 
     @app.route("/projects/<int:project_id>/racks/new", methods=["POST"])

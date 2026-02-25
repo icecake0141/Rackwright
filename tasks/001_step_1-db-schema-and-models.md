@@ -3,9 +3,9 @@
 ## Step 1 -- DB Schema and Models
 
 ### Acceptance Criteria
-- [ ] Criteria 1: Define measurable condition for this section.
-- [ ] Criteria 2: Include validation method (test, review, or evidence).
-- [ ] Criteria 3: State completion artifacts (files, screenshots, outputs).
+- [ ] Measurable: Core tables/models (Project/Site/Room/Row/Rack/Device/Cabling/PowerCabling + template snapshot + artifact + diff + FieldChangeLog) are created and queryable with specified unique/index constraints.
+- [ ] Verification: Run migration up/down test and schema constraint checks (`tests/test_migration_step1.py`).
+- [ ] Evidence: Passing test output and migration files (`alembic/versions/20260225_0001_initial_schema.py`, `alembic/versions/20260225_0002_template_set_sources.py`).
 
 1.  Define SQLAlchemy Base + TimestampMixin (created_at/updated_at).
 

@@ -24,7 +24,8 @@ Purpose: Record evidence for checklist items that were previously marked as not 
 - Command:
   - `python -m pytest -q`
 - Result:
-  - `23 passed`
+  - `24 passed` (recorded at 2026-02-25 gate run)
+  - Note: current repository regression suite is larger after additional route tests.
 
 ### 2) CSV scale benchmark (Section 9)
 
@@ -51,6 +52,33 @@ Purpose: Record evidence for checklist items that were previously marked as not 
   - Versions page: `200`
   - Compare action POST: `302` (redirect expected)
 
+### 5) Manual smoke test execution record (Section 11 #2)
+
+- Operator: `internal-user` (AI-assisted)
+- When: `2026-02-25T15:34:50Z` (UTC)
+- Version tested: `654b69c`
+- What was tested:
+  - Dashboard -> Project detail -> Cabling -> Generate -> Versions -> Section Rules -> Compare action
+- Evidence paths:
+  - `evidence/2026-02-26/Manual_Smoke_Test_Record.md`
+  - `evidence/2026-02-26/manual_smoke_http_results.json`
+
+### 6) Word/Excel visual inspection + diff readability/accuracy (Section 11 #4/#5)
+
+- Reviewer: `internal-user` (AI-assisted preparation)
+- When: `2026-02-25T15:34:50Z` (UTC)
+- Version tested: `654b69c`
+- What was inspected:
+  - Base/target Word and Excel artifacts openability
+  - Diff Word summary/comments/highlight visibility
+  - Diff Excel marked-cell and `diff_list` visibility
+  - Accuracy for known change set (`L-E1 -> L-E2`, project note change)
+- Evidence paths:
+  - `evidence/2026-02-26/Artifact_Visual_Inspection_Record.md`
+  - `evidence/2026-02-26/artifact_manifest.json`
+  - `evidence/2026-02-26/artifacts/projects/1/versions/2/diff/word_diff_summary.docx`
+  - `evidence/2026-02-26/artifacts/projects/1/versions/2/diff/excel_diff_list.xlsx`
+
 ## Operational Notes Status
 
 - Known limitations documentation:
@@ -62,5 +90,4 @@ Purpose: Record evidence for checklist items that were previously marked as not 
 
 ## Remaining Manual Item
 
-- Manual browser-based smoke test (human-operated end-to-end UI check) is not executed in this record.
-- Alternative executed here: automated smoke via Flask test client covering the same core route flow.
+- Browser UI screenshots are not included in this record; file-based artifacts and route logs are provided instead.

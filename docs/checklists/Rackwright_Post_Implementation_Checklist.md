@@ -49,9 +49,9 @@ Execution record:
 ## 4.1 Network Cabling CSV
 
 ### Acceptance Criteria
-- [ ] Criteria 1: Define measurable condition for this section.
-- [ ] Criteria 2: Include validation method (test, review, or evidence).
-- [ ] Criteria 3: State completion artifacts (files, screenshots, outputs).
+- [ ] Measurable condition: Network CSV export/import includes required columns and supports dry-run unknown detection + normalized upsert merge semantics.
+- [ ] Validation method: Execute `tests/test_csv_services_step3.py` and UI import/export flow in `tests/test_web_ui_step8.py`.
+- [ ] Completion artifacts: test output logs and sample generated network CSV from `/projects/{id}/cabling/export/network`.
 
 -   Export includes required columns and preserves labels/types/notes if
     present.
@@ -71,9 +71,9 @@ Execution record:
 ## 4.2 Power Cabling CSV
 
 ### Acceptance Criteria
-- [ ] Criteria 1: Define measurable condition for this section.
-- [ ] Criteria 2: Include validation method (test, review, or evidence).
-- [ ] Criteria 3: State completion artifacts (files, screenshots, outputs).
+- [ ] Measurable condition: Power CSV export/import includes `bank`/`outlet` and creates unknown `b_device` placeholders as `role=PDU` when confirmed.
+- [ ] Validation method: Execute `tests/test_csv_services_step3.py::test_power_import_creates_unknown_b_device_as_pdu_role` and end-to-end power CSV import via UI.
+- [ ] Completion artifacts: test output logs and exported power CSV from `/projects/{id}/cabling/export/power`.
 
 -   Export includes bank and outlet fields.
 

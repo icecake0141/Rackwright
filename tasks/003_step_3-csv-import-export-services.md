@@ -3,9 +3,9 @@
 ## Step 3 -- CSV Import/Export Services
 
 ### Acceptance Criteria
-- [ ] Criteria 1: Define measurable condition for this section.
-- [ ] Criteria 2: Include validation method (test, review, or evidence).
-- [ ] Criteria 3: State completion artifacts (files, screenshots, outputs).
+- [ ] Measurable: Network/Power CSV import-export supports required columns, dry-run unknown detection, placeholder creation roles, and normalized upsert merge semantics.
+- [ ] Verification: Run CSV service tests for merge/no-delete/normalization/context and power PDU placeholder behavior (`tests/test_csv_services_step3.py`).
+- [ ] Evidence: `rackwright/csv_services.py` and passing test output.
 
 13. Implement CSV export for Cabling and PowerCabling with
     required/recommended columns.

@@ -3,9 +3,9 @@
 ## Step 8 -- Web UI (Server-side)
 
 ### Acceptance Criteria
-- [ ] Criteria 1: Define measurable condition for this section.
-- [ ] Criteria 2: Include validation method (test, review, or evidence).
-- [ ] Criteria 3: State completion artifacts (files, screenshots, outputs).
+- [ ] Measurable: Server-side UI provides dashboard/project/rack/device/cabling/generate/versions/errors flows with CSV import-export, conflict actions, and jump navigation.
+- [ ] Verification: Execute UI integration tests for core flows, filters, hierarchy display, and conflict behavior (`tests/test_web_ui_step8.py`).
+- [ ] Evidence: `rackwright/app.py`, `rackwright/templates/*.html`, and passing UI test output.
 
 40. Dashboard: list projects; create project from template; show latest
     artifact version.
@@ -35,9 +35,9 @@
 ## Gate A -- Schema + Logging
 
 ### Acceptance Criteria
-- [ ] Criteria 1: Define measurable condition for this section.
-- [ ] Criteria 2: Include validation method (test, review, or evidence).
-- [ ] Criteria 3: State completion artifacts (files, screenshots, outputs).
+- [ ] Measurable: Schema migrates cleanly and change logs are produced for edit/import flows with unique key enforcement.
+- [ ] Verification: Run migration + change logging + CSV normalization tests.
+- [ ] Evidence: `tests/test_migration_step1.py`, `tests/test_change_logging_step2.py`, `tests/test_csv_services_step3.py` results.
 
 -   All migrations apply on empty DB.
 
@@ -48,9 +48,9 @@
 ## Gate B -- CSV Workflow
 
 ### Acceptance Criteria
-- [ ] Criteria 1: Define measurable condition for this section.
-- [ ] Criteria 2: Include validation method (test, review, or evidence).
-- [ ] Criteria 3: State completion artifacts (files, screenshots, outputs).
+- [ ] Measurable: CSV import/export follows required schema; unknown-device confirmation and merge-no-delete behavior are enforced.
+- [ ] Verification: Run CSV service + UI CSV flow tests.
+- [ ] Evidence: `tests/test_csv_services_step3.py`, `tests/test_web_ui_step8.py` outputs.
 
 -   CSV export matches schema.
 
@@ -63,9 +63,9 @@
 ## Gate C -- Generation
 
 ### Acceptance Criteria
-- [ ] Criteria 1: Define measurable condition for this section.
-- [ ] Criteria 2: Include validation method (test, review, or evidence).
-- [ ] Criteria 3: State completion artifacts (files, screenshots, outputs).
+- [ ] Measurable: Generation writes DB metadata + filesystem artifacts for all/by-type, keeps idempotency, and records partial-failure errors.
+- [ ] Verification: Run generation and UI generation tests.
+- [ ] Evidence: `tests/test_generation_step6.py`, `tests/test_web_ui_step8.py` outputs and generated files under `data/projects/...`.
 
 -   All/ByType generation produces filesystem artifacts and DB metadata
     rows.
@@ -79,9 +79,9 @@
 ## Gate D -- Diff
 
 ### Acceptance Criteria
-- [ ] Criteria 1: Define measurable condition for this section.
-- [ ] Criteria 2: Include validation method (test, review, or evidence).
-- [ ] Criteria 3: State completion artifacts (files, screenshots, outputs).
+- [ ] Measurable: Diff generation between versions outputs Excel+Word diff artifacts with persisted itemized changes.
+- [ ] Verification: Run diff unit/integration test with known modified cell/text.
+- [ ] Evidence: `tests/test_diff_step7.py` output and generated diff files.
 
 -   Diff between any two versions produces diff Excel list and Word
     summary.
@@ -94,9 +94,9 @@
 ## Gate E -- UI
 
 ### Acceptance Criteria
-- [ ] Criteria 1: Define measurable condition for this section.
-- [ ] Criteria 2: Include validation method (test, review, or evidence).
-- [ ] Criteria 3: State completion artifacts (files, screenshots, outputs).
+- [ ] Measurable: Main pages respond without 500 errors, downloads and jump links function, and core routes are covered by automated tests.
+- [ ] Verification: Run web UI integration tests and smoke requests.
+- [ ] Evidence: `tests/test_web_ui_step8.py` output and gate execution records.
 
 -   All core flows work without JS-heavy logic (server-side).
 

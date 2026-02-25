@@ -3,9 +3,9 @@
 ## Step 4 -- Template Snapshot Creation
 
 ### Acceptance Criteria
-- [ ] Criteria 1: Define measurable condition for this section.
-- [ ] Criteria 2: Include validation method (test, review, or evidence).
-- [ ] Criteria 3: State completion artifacts (files, screenshots, outputs).
+- [ ] Measurable: Template set/section CRUD and project snapshot cloning create immutable `SectionSnapshot` rows with JSON TEXT fields and per-project rule rows.
+- [ ] Verification: Run template snapshot tests including immutability and section rule update (`tests/test_template_snapshot_step4.py`).
+- [ ] Evidence: `rackwright/template_services.py`, template set UI routes/templates, and passing tests.
 
 19. Implement template set management (minimal): create/edit template
     sets and their sections (internal UI).

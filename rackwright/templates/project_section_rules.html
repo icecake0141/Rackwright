@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><title>Section Rules {{ project.name }}</title></head>
+<body>
+  <h1>Section Rules: {{ project.name }}</h1>
+
+  {% if edit_rule %}
+    <h2>Edit Rule #{{ edit_rule.id }}</h2>
+    <p>Section: {{ edit_section.category }} / {{ edit_section.target_type }} / order {{ edit_section.section_order }}</p>
+    <form method="post" action="{{ url_for('project_section_rule_update', project_id=project.id, rule_id=edit_rule.id) }}">
+      <label>
+        <input type="checkbox" name="enabled" value="1" {% if edit_rule.enabled %}checked{% endif %}>
+        Enabled
+      </label><br>
+      <label>Role filters (comma-separated)
+        <input name="role_values" value="{{ role_values or '' }}">
+      </label><br>
+      <label>Rack scope filters (comma-separated)
+        <input name="rack_scope_values" value="{{ rack_scope_values or '' }}">
+      </label><br>
+      <button type="submit">Save Rule</button>
+    </form>
+    <p><a href="{{ url_for('project_section_rules', project_id=project.id) }}">Back to all rules</a></p>
+  {% endif %}
+
+  <h2>Rules</h2>
+  <table border="1">
+    <tr><th>Rule ID</th><th>Section</th><th>Target</th><th>Enabled</th><th>Filters JSON</th><th>Action</th></tr>
+    {% for row in rows %}
+      <tr>
+        <td>{{ row.rule.id }}</td>
+        <td>{{ row.section.category }} #{{ row.section.section_order }}</td>
+        <td>{{ row.section.target_type }}</td>
+        <td>{{ row.rule.enabled }}</td>
+        <td>{{ row.rule.filters_json or '' }}</td>
+        <td><a href="{{ url_for('project_section_rule_edit', project_id=project.id, rule_id=row.rule.id) }}">Edit</a></td>
+      </tr>
+    {% else %}
+      <tr><td colspan="6">No rules.</td></tr>
+    {% endfor %}
+  </table>
+
+  <p><a href="{{ url_for('project_detail', project_id=project.id) }}">Back to Project</a></p>
+</body>
+</html>

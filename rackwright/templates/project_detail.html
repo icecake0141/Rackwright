@@ -4,6 +4,7 @@
 <body>
   <h1>Project: {{ project.name }}</h1>
   <form method="post">
+    <input type="hidden" name="action" value="save_project">
     <label>Name <input name="name" value="{{ project.name }}"></label><br>
     <label>Owner <input name="owner" value="{{ project.owner or '' }}"></label><br>
     <label>Notes <textarea name="notes">{{ project.notes or '' }}</textarea></label><br>
@@ -15,14 +16,38 @@
     {% for site_node in hierarchy_tree %}
       <li>
         Site: {{ site_node.site.name }}
+        <form method="post">
+          <input type="hidden" name="action" value="update_site">
+          <input type="hidden" name="site_id" value="{{ site_node.site.id }}">
+          <strong>Edit Site</strong>
+          <label>Name <input name="site_name" value="{{ site_node.site.name }}"></label>
+          <label>Address <input name="site_address" value="{{ site_node.site.address or '' }}"></label>
+          <label>Entry <input name="site_entry_procedure" value="{{ site_node.site.entry_procedure or '' }}"></label>
+          <label>Contact <input name="site_contact_info" value="{{ site_node.site.contact_info or '' }}"></label>
+          <button type="submit">Save Site</button>
+        </form>
         <ul>
           {% for room_node in site_node.rooms %}
             <li>
               Room: {{ room_node.room.name }}
+              <form method="post">
+                <input type="hidden" name="action" value="update_room">
+                <input type="hidden" name="room_id" value="{{ room_node.room.id }}">
+                <strong>Edit Room</strong>
+                <label>Name <input name="room_name" value="{{ room_node.room.name }}"></label>
+                <button type="submit">Save Room</button>
+              </form>
               <ul>
                 {% for row_node in room_node.rows %}
                   <li>
                     Row: {{ row_node.row.name }}
+                    <form method="post">
+                      <input type="hidden" name="action" value="update_row">
+                      <input type="hidden" name="row_id" value="{{ row_node.row.id }}">
+                      <strong>Edit Row</strong>
+                      <label>Name <input name="row_name" value="{{ row_node.row.name }}"></label>
+                      <button type="submit">Save Row</button>
+                    </form>
                     <ul>
                       {% for rack_node in row_node.racks %}
                         <li>
@@ -93,6 +118,7 @@
     <a href="{{ url_for('project_cabling', project_id=project.id) }}">Cabling</a> |
     <a href="{{ url_for('project_generate', project_id=project.id) }}">Generate</a> |
     <a href="{{ url_for('project_versions', project_id=project.id) }}">Versions</a> |
+    <a href="{{ url_for('project_section_rules', project_id=project.id) }}">Section Rules</a> |
     <a href="{{ url_for('project_errors', project_id=project.id) }}">Errors</a>
   </p>
   <p><a href="{{ url_for('dashboard') }}">Back to Dashboard</a></p>

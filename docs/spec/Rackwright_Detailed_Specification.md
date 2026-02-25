@@ -356,6 +356,9 @@ Path pattern:
 -   Project detail default tab: hierarchy tree with basic edits and
     navigation.
 
+-   Project detail provides direct edit controls for Site/Room/Row names
+    (and Site metadata fields).
+
 -   Device tabs: Basics / Cabling / Power / Settings / Config Blocks.
 
 -   Rack tabs: Basics / Layout / Power.
@@ -366,6 +369,9 @@ Path pattern:
 -   Generation dialog: mode selection (All/ByType), remarks, base
     version for diff; conflict handling with
     stop/force/save-and-regenerate choices.
+
+-   Project-level section rules editor provides per-section enabled flag
+    and simple role/rack-scope filter editing.
 
 # 8. Non-functional Requirements
 
