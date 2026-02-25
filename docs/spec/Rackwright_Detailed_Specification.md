@@ -243,11 +243,22 @@ unspecified rows.
     before applying changes.
 
 -   Network cabling CSV: unknown devices are created as placeholders
-    with role=Other (unplaced).
+    with `role="Other"` (unplaced).
 
 -   Power cabling CSV: unknown b_device placeholders are created with
-    role=PDU (unplaced); other unknown power-side devices default to
-    role=Other.
+    `role="PDU"` (unplaced); other unknown power-side devices default
+    to `role="Other"`.
+
+### 4.4 Unknown-device role assignment policy (normative)
+
+-   Network cabling CSV import:
+    unknown device placeholder role MUST be `"Other"`.
+
+-   Power cabling CSV import:
+    unknown `b_device` placeholder role MUST be `"PDU"`.
+
+-   Power cabling CSV import (other unknown devices):
+    placeholder role MUST be `"Other"`.
 
 -   Change log context includes csv_import + file name + row number.
 

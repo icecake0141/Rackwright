@@ -49,9 +49,9 @@ Execution record:
 ## 4.1 Network Cabling CSV
 
 ### Acceptance Criteria
-- [ ] Measurable condition: Network CSV export/import includes required columns and supports dry-run unknown detection + normalized upsert merge semantics.
-- [ ] Validation method: Execute `tests/test_csv_services_step3.py` and UI import/export flow in `tests/test_web_ui_step8.py`.
-- [ ] Completion artifacts: test output logs and sample generated network CSV from `/projects/{id}/cabling/export/network`.
+- [x] Measurable condition: Network CSV export/import includes required columns and supports dry-run unknown detection + normalized upsert merge semantics.
+- [x] Validation method: Execute `tests/test_csv_services_step3.py` and UI import/export flow in `tests/test_web_ui_step8.py`.
+- [x] Completion artifacts: test output logs and sample generated network CSV from `/projects/{id}/cabling/export/network`.
 
 -   Export includes required columns and preserves labels/types/notes if
     present.
@@ -71,9 +71,9 @@ Execution record:
 ## 4.2 Power Cabling CSV
 
 ### Acceptance Criteria
-- [ ] Measurable condition: Power CSV export/import includes `bank`/`outlet` and creates unknown `b_device` placeholders as `role=PDU` when confirmed.
-- [ ] Validation method: Execute `tests/test_csv_services_step3.py::test_power_import_creates_unknown_b_device_as_pdu_role` and end-to-end power CSV import via UI.
-- [ ] Completion artifacts: test output logs and exported power CSV from `/projects/{id}/cabling/export/power`.
+- [x] Measurable condition: Power CSV export/import includes `bank`/`outlet` and creates unknown `b_device` placeholders as `role=PDU` when confirmed.
+- [x] Validation method: Execute `tests/test_csv_services_step3.py::test_power_import_creates_unknown_b_device_as_pdu_role` and end-to-end power CSV import via UI.
+- [x] Completion artifacts: test output logs and exported power CSV from `/projects/{id}/cabling/export/power`.
 
 -   Export includes bank and outlet fields.
 
@@ -176,15 +176,22 @@ Execution record:
 
 # 11. Release Readiness Gate
 
-1.  All automated tests pass (unit + integration).
+- [x] All automated tests pass (unit + integration).
 
-2.  Manual smoke test passes core flow: create project -\> import
+- [x] Manual smoke test passes core flow: create project -\> import
     cabling -\> generate all -\> generate diff -\> download artifacts.
 
-3.  No critical UI errors; no 500 responses on main pages.
+- [x] No critical UI errors; no 500 responses on main pages.
 
-4.  Artifacts open correctly in Word/Excel and markings are visible.
+- [x] Artifacts open correctly in Word/Excel and markings are visible.
 
-5.  Diff reports are readable and accurately reflect changes.
+- [x] Diff reports are readable and accurately reflect changes.
 
-6.  Known limitations are documented.
+- [x] Known limitations are documented.
+
+Evidence references (manual + artifact):
+- `docs/checklists/Rackwright_Gate_Execution_Record_2026-02-25.md`
+- `evidence/2026-02-26/Manual_Smoke_Test_Record.md`
+- `evidence/2026-02-26/manual_smoke_http_results.json`
+- `evidence/2026-02-26/Artifact_Visual_Inspection_Record.md`
+- `evidence/2026-02-26/artifact_manifest.json`

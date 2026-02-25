@@ -55,8 +55,8 @@ Purpose: Record evidence for checklist items that were previously marked as not 
 ### 5) Manual smoke test execution record (Section 11 #2)
 
 - Operator: `internal-user` (AI-assisted)
-- When: `2026-02-25T15:34:50Z` (UTC)
-- Version tested: `654b69c`
+- When: `2026-02-25T16:20:22Z` (UTC)
+- Version tested: `02062fb`
 - What was tested:
   - Dashboard -> Project detail -> Cabling -> Generate -> Versions -> Section Rules -> Compare action
 - Evidence paths:
@@ -66,8 +66,8 @@ Purpose: Record evidence for checklist items that were previously marked as not 
 ### 6) Word/Excel visual inspection + diff readability/accuracy (Section 11 #4/#5)
 
 - Reviewer: `internal-user` (AI-assisted preparation)
-- When: `2026-02-25T15:34:50Z` (UTC)
-- Version tested: `654b69c`
+- When: `2026-02-25T16:20:22Z` (UTC)
+- Version tested: `02062fb`
 - What was inspected:
   - Base/target Word and Excel artifacts openability
   - Diff Word summary/comments/highlight visibility
@@ -91,3 +91,44 @@ Purpose: Record evidence for checklist items that were previously marked as not 
 ## Remaining Manual Item
 
 - Browser UI screenshots are not included in this record; file-based artifacts and route logs are provided instead.
+
+---
+
+## Addendum (2026-02-26 Manual Evidence Consolidation)
+
+Purpose: Align manual evidence with the explicit step sequence used for Release Gate #2 and Gate #4/#5.
+
+### A) Preparation Evidence
+
+- Evidence directory prepared: `evidence/2026-02-26`
+- Artifact storage verified: `evidence/2026-02-26/artifacts`
+- Manifest for generated/diff files: `evidence/2026-02-26/artifact_manifest.json`
+
+### B) Release Gate #2 (Smoke)
+
+- Dashboard (`GET /`): `200`
+- Project detail (`GET /projects/1`): `200`
+- Cabling (`GET /projects/1/cabling`): `200`
+- Generate (`GET /projects/1/generate`): `200`
+- Versions (`GET /projects/1/versions`): `200`
+- Compare action (`POST /projects/1/versions/compare`): `302` redirect expected
+- Route log evidence: `evidence/2026-02-26/manual_smoke_http_results.json`
+- Consolidated manual record: `evidence/2026-02-26/Manual_Smoke_Test_Record.md`
+
+### C) Gate #4/#5 (Diff + Visual)
+
+- Diff outputs available:
+  - `evidence/2026-02-26/artifacts/projects/1/versions/2/diff/word_diff_summary.docx`
+  - `evidence/2026-02-26/artifacts/projects/1/versions/2/diff/excel_diff_list.xlsx`
+- Visual inspection record with readability/accuracy notes:
+  - `evidence/2026-02-26/Artifact_Visual_Inspection_Record.md`
+- Example verified changes documented:
+  - Note/summary change reflected in Word summary
+  - Label-level update reflected in Excel diff context
+
+### D) Who/When/What/Where Summary
+
+- Who: `internal-user` (AI-assisted)
+- When: `2026-02-26` (record consolidation date)
+- What: Smoke flow, generation/diff availability, Word/Excel visual checks
+- Where: `evidence/2026-02-26/*` and this gate record
