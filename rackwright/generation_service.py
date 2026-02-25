@@ -31,8 +31,11 @@ from rackwright.models import (
     PowerCabling,
     Project,
     Rack,
+    Room,
+    Row,
     SectionApplicationRule,
     SectionSnapshot,
+    Site,
     TemplateSetSnapshot,
 )
 from rackwright.view_builders import cablings_for_project
@@ -390,7 +393,162 @@ def _target_types_for_mode(mode: str) -> set[str]:
     raise ValueError("Invalid mode")
 
 
-def _write_word(path: Path, rendered_sections: list[dict[str, str]]) -> None:
+def _operation_steps(session: Session, project_id: int) -> list[dict[str, str]]:
+    location_map = _device_location_map(session, project_id)
+    cablings = cablings_for_project(session, project_id)
+    power_cablings = (
+        session.execute(
+            select(PowerCabling)
+            .where(PowerCabling.project_id == project_id)
+            .order_by(
+                PowerCabling.label.asc(),
+                PowerCabling.a_device.asc(),
+                PowerCabling.a_port.asc(),
+            )
+        )
+        .scalars()
+        .all()
+    )
+
+    steps: list[dict[str, str]] = []
+    steps.append(
+        {
+            "phase": "pre-check",
+            "action": "Verify maintenance window, impact scope, and cable labels before touching any connection.",
+            "expected_result": "Work permit and target endpoints are confirmed.",
+            "rollback_hint": "Stop operation and escalate if scope is unclear.",
+        }
+    )
+
+    for cabling in cablings:
+        label = cabling.label or "(no-label)"
+        steps.append(
+            {
+                "phase": "execution",
+                "action": (
+                    f"Connect network cable {label}: "
+                    f"{cabling.a_device}:{cabling.a_port} -> {cabling.b_device}:{cabling.b_port} "
+                    f"({cabling.cable_type or 'unspecified'}). "
+                    f"Location: {location_map.get(cabling.a_device, 'unknown')} -> {location_map.get(cabling.b_device, 'unknown')}."
+                ),
+                "expected_result": "Endpoints are connected and cable label matches work order.",
+                "rollback_hint": (
+                    f"Restore previous endpoint mapping for {label} if link/error check fails."
+                ),
+            }
+        )
+
+    for power in power_cablings:
+        label = power.label or "(no-label)"
+        steps.append(
+            {
+                "phase": "execution",
+                "action": (
+                    f"Verify power path {label}: "
+                    f"{power.a_device}:{power.a_port} -> {power.b_device}:{power.b_port} "
+                    f"(bank={power.bank}, outlet={power.outlet}). "
+                    f"Location: {location_map.get(power.a_device, 'unknown')} -> {location_map.get(power.b_device, 'unknown')}."
+                ),
+                "expected_result": "Power feed mapping is verified against plan.",
+                "rollback_hint": "Revert to previous known-safe power outlet if mismatch is detected.",
+            }
+        )
+
+    steps.append(
+        {
+            "phase": "post-check",
+            "action": "Run link and service checks, then record completion evidence.",
+            "expected_result": "All affected links/services are healthy and checklist is signed.",
+            "rollback_hint": "Execute rollback procedure if service validation fails.",
+        }
+    )
+    return steps
+
+
+def _device_location_map(session: Session, project_id: int) -> dict[str, str]:
+    devices = (
+        session.execute(
+            select(Device)
+            .where(Device.project_id == project_id)
+            .order_by(Device.name.asc(), Device.id.asc())
+        )
+        .scalars()
+        .all()
+    )
+    racks = (
+        session.execute(
+            select(Rack).where(Rack.project_id == project_id).order_by(Rack.id.asc())
+        )
+        .scalars()
+        .all()
+    )
+    rows = (
+        session.execute(
+            select(Row)
+            .join(Room, Room.id == Row.room_id)
+            .join(Site, Site.id == Room.site_id)
+            .where(Site.project_id == project_id)
+            .order_by(Row.id.asc())
+        )
+        .scalars()
+        .all()
+    )
+    rooms = (
+        session.execute(
+            select(Room)
+            .join(Site, Site.id == Room.site_id)
+            .where(Site.project_id == project_id)
+            .order_by(Room.id.asc())
+        )
+        .scalars()
+        .all()
+    )
+    sites = (
+        session.execute(
+            select(Site)
+            .where(Site.project_id == project_id)
+            .order_by(Site.id.asc())
+        )
+        .scalars()
+        .all()
+    )
+
+    racks_by_id = {rack.id: rack for rack in racks}
+    rows_by_id = {row.id: row for row in rows}
+    rooms_by_id = {room.id: room for room in rooms}
+    sites_by_id = {site.id: site for site in sites}
+
+    result: dict[str, str] = {}
+    for device in devices:
+        if device.rack_id is None:
+            result[device.name] = "unassigned"
+            continue
+
+        rack = racks_by_id.get(device.rack_id)
+        if rack is None:
+            result[device.name] = "unassigned"
+            continue
+
+        parts = [f"rack={rack.name}"]
+        if rack.row_id is not None:
+            row_obj = rows_by_id.get(rack.row_id)
+            if row_obj is not None:
+                parts.append(f"row={row_obj.name}")
+                room = rooms_by_id.get(row_obj.room_id)
+                if room is not None:
+                    parts.append(f"room={room.name}")
+                    site = sites_by_id.get(room.site_id)
+                    if site is not None:
+                        parts.append(f"site={site.name}")
+        result[device.name] = ", ".join(parts)
+    return result
+
+
+def _write_word(
+    path: Path,
+    rendered_sections: list[dict[str, str]],
+    operation_steps: list[dict[str, str | int]],
+) -> None:
     document = Document()
     last_category: str | None = None
     for section in rendered_sections:
@@ -404,7 +562,94 @@ def _write_word(path: Path, rendered_sections: list[dict[str, str]]) -> None:
         for line in section["text"].splitlines() or [section["text"]]:
             if line.strip():
                 document.add_paragraph(line)
+
+    document.add_heading("Field Execution Pack", level=1)
+    document.add_heading("Preconditions and Safety", level=2)
+    document.add_paragraph(
+        "Confirm approved maintenance window, affected scope, and safety constraints before execution."
+    )
+    document.add_paragraph(
+        "Do not proceed if endpoint mapping, work permit, or rollback path is unclear."
+    )
+
+    document.add_heading("Step-by-step Procedure", level=2)
+    for step in operation_steps:
+        step_no = int(step["step_no"])
+        depends_on = step["depends_on_step_no"]
+        dependency_suffix = ""
+        if isinstance(depends_on, int) and depends_on > 0:
+            dependency_suffix = f" (depends on step {depends_on})"
+        document.add_paragraph(
+            f"{step_no}. [{step['phase']}] {step['action']}{dependency_suffix}"
+        )
+        document.add_paragraph(f"   Expected: {step['expected_result']}")
+
+    document.add_heading("Post-work Verification", level=2)
+    document.add_paragraph(
+        "Validate link status, service status, and record execution evidence for each completed step."
+    )
+
+    document.add_heading("Rollback Procedure", level=2)
+    document.add_paragraph(
+        "If verification fails, revert affected changes in reverse step order and escalate with evidence."
+    )
     document.save(path)
+
+
+def _operation_steps_from_rendered_sections(
+    rendered_sections: list[dict[str, str]],
+) -> list[dict[str, str]]:
+    steps: list[dict[str, str]] = []
+    for section in rendered_sections:
+        targets = json.loads(section["output_targets"])
+        if "excel" not in targets and "word" not in targets:
+            continue
+        text = (section["text"] or "").strip()
+        if not text:
+            continue
+        steps.append(
+            {
+                "phase": "execution",
+                "action": text,
+                "expected_result": "Section content is applied and verified.",
+                "rollback_hint": "Revert section-level change and re-validate.",
+            }
+        )
+    if not steps:
+        steps.append(
+            {
+                "phase": "execution",
+                "action": "No template-driven section steps were generated.",
+                "expected_result": "Operator confirms no additional template steps are required.",
+                "rollback_hint": "N/A",
+            }
+        )
+    return steps
+
+
+def _combined_operation_steps(
+    session: Session,
+    project_id: int,
+    rendered_sections: list[dict[str, str]],
+) -> list[dict[str, str | int]]:
+    field_steps = _operation_steps(session, project_id)
+    template_steps = _operation_steps_from_rendered_sections(rendered_sections)
+    combined_steps: list[dict[str, str | int]] = []
+
+    for raw_step in [*field_steps, *template_steps]:
+        step_no = len(combined_steps) + 1
+        dependency = step_no - 1 if step_no > 1 else ""
+        combined_steps.append(
+            {
+                "step_no": step_no,
+                "depends_on_step_no": dependency,
+                "phase": raw_step["phase"],
+                "action": raw_step["action"],
+                "expected_result": raw_step["expected_result"],
+                "rollback_hint": raw_step["rollback_hint"],
+            }
+        )
+    return combined_steps
 
 
 def _write_excel(
@@ -412,6 +657,7 @@ def _write_excel(
     session: Session,
     project_id: int,
     rendered_sections: list[dict[str, str]],
+    operation_steps: list[dict[str, str | int]],
 ) -> None:
     wb = Workbook()
     ws_wiring = wb.active
@@ -459,6 +705,80 @@ def _write_excel(
         targets = json.loads(section["output_targets"])
         if "excel" in targets:
             ws_checklists.append([section["category"], section["text"]])
+
+    ws_work_steps = wb.create_sheet("work_steps")
+    ws_work_steps.append(
+        [
+            "step_no",
+            "depends_on_step_no",
+            "phase",
+            "action",
+            "expected_result",
+            "rollback_hint",
+        ]
+    )
+    for step in operation_steps:
+        ws_work_steps.append(
+            [
+                step["step_no"],
+                step["depends_on_step_no"],
+                step["phase"],
+                step["action"],
+                step["expected_result"],
+                step["rollback_hint"],
+            ]
+        )
+
+    ws_verification = wb.create_sheet("verification_checklist")
+    ws_verification.append(
+        ["item", "method", "result", "evidence", "notes", "step_no"]
+    )
+    ws_verification.append(
+        [
+            "Maintenance window and scope confirmed",
+            "Review work permit and endpoint list",
+            "PENDING",
+            "",
+            "",
+            "",
+        ]
+    )
+    ws_verification.append(
+        [
+            "Cabling labels and endpoints verified",
+            "Cross-check label against wiring sheet",
+            "PENDING",
+            "",
+            "",
+            "",
+        ]
+    )
+    ws_verification.append(
+        [
+            "Post-work service checks completed",
+            "Ping/health checks and operator confirmation",
+            "PENDING",
+            "",
+            "",
+            "",
+        ]
+    )
+    for step in operation_steps:
+        ws_verification.append(
+            [
+                f"Step {step['step_no']} completed",
+                f"Verify: {step['expected_result']}",
+                "PENDING",
+                "",
+                "",
+                step["step_no"],
+            ]
+        )
+
+    ws_issue_log = wb.create_sheet("issue_log")
+    ws_issue_log.append(
+        ["timestamp", "step_no", "severity", "issue", "action_taken", "owner"]
+    )
 
     wb.save(path)
 
@@ -551,6 +871,7 @@ def generate(
 
     errors: list[dict[str, Any]] = []
     rendered_sections = _render_sections_for_project(session, project_id)
+    operation_steps = _combined_operation_steps(session, project_id, rendered_sections)
 
     with change_log_context(source="generate", mode=mode, version=version_number):
         if "word" in targets:
@@ -558,7 +879,7 @@ def generate(
                 output_dir = _artifact_base_path(project_id, version_number, "word")
                 output_dir.mkdir(parents=True, exist_ok=True)
                 file_path = output_dir / "document.docx"
-                _write_word(file_path, rendered_sections)
+                _write_word(file_path, rendered_sections, operation_steps)
                 _record_artifact_file(session, artifact_version.id, "word", file_path)
                 artifact_version.success_word = True
             except Exception as exc:
@@ -575,7 +896,13 @@ def generate(
                 output_dir = _artifact_base_path(project_id, version_number, "excel")
                 output_dir.mkdir(parents=True, exist_ok=True)
                 file_path = output_dir / "document.xlsx"
-                _write_excel(file_path, session, project_id, rendered_sections)
+                _write_excel(
+                    file_path,
+                    session,
+                    project_id,
+                    rendered_sections,
+                    operation_steps,
+                )
                 _record_artifact_file(session, artifact_version.id, "excel", file_path)
                 artifact_version.success_excel = True
             except Exception as exc:

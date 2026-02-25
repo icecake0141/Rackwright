@@ -21,6 +21,7 @@ from rackwright.models import (
     ArtifactFile,
     ArtifactVersion,
     Base,
+    Cabling,
     Device,
     Rack,
     SectionApplicationRule,
@@ -317,3 +318,62 @@ def test_target_scope_switches_for_rack_and_device_with_project_context(
         assert "R=rack-b P=scope-project" in values
         assert "D=srv-a P=scope-project" in values
         assert "D=srv-b P=scope-project" in values
+
+
+def test_generate_excel_includes_field_operation_sheets(tmp_path: Path) -> None:
+    os.environ["RACKWRIGHT_DATA_DIR"] = str(tmp_path)
+    with _new_session() as session:
+        project_id = _create_project_with_snapshot(session)
+        session.add(
+            Cabling(
+                project_id=project_id,
+                a_device="sw1",
+                a_port="ge-0/0/1",
+                a_port_type="dcim.interface",
+                b_device="srv1",
+                b_port="eth0",
+                b_port_type="dcim.interface",
+                cable_type="cat6",
+                label="N-100",
+                normalized_key="srv1::eth0::dcim.interface|sw1::ge-0/0/1::dcim.interface",
+            )
+        )
+        session.commit()
+
+        result = generate(session, project_id, "excel", None, "field-pack")
+        session.commit()
+
+        excel_file = (
+            session.query(ArtifactFile)
+            .filter(
+                ArtifactFile.artifact_version_id == result.artifact_version.id,
+                ArtifactFile.artifact_type == "excel",
+            )
+            .one()
+        )
+        wb = load_workbook(tmp_path / excel_file.relative_path)
+
+        assert "work_steps" in wb.sheetnames
+        assert "verification_checklist" in wb.sheetnames
+        assert "issue_log" in wb.sheetnames
+
+        work_steps = wb["work_steps"]
+        assert work_steps.max_row >= 4
+        assert work_steps.cell(row=1, column=1).value == "step_no"
+        assert work_steps.cell(row=1, column=2).value == "depends_on_step_no"
+        actions = [
+            work_steps.cell(row=i, column=4).value
+            for i in range(2, work_steps.max_row + 1)
+        ]
+        assert any(action and "Connect network cable N-100" in action for action in actions)
+        assert any(action and "Location:" in action for action in actions)
+        assert work_steps.cell(row=2, column=2).value in ("", None)
+        assert work_steps.cell(row=3, column=2).value == 1
+
+        verification = wb["verification_checklist"]
+        assert verification.max_row >= 4
+        assert verification.cell(row=1, column=3).value == "result"
+        assert verification.cell(row=1, column=6).value == "step_no"
+
+        issue_log = wb["issue_log"]
+        assert issue_log.cell(row=1, column=4).value == "issue"
