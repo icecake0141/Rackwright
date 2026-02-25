@@ -25,6 +25,7 @@ from rackwright.csv_services import (
     export_power_cabling_csv,
 )
 from rackwright.db import create_sqlite_engine
+from rackwright.default_templates import create_zerostage_starter_template_set
 from rackwright.diff_service import diff
 from rackwright.generation_service import generate
 from rackwright.models import (
@@ -941,6 +942,15 @@ def create_app(database_url: str = "sqlite:///./rackwright.db") -> Flask:
                 session.commit()
             return redirect(url_for("template_sets_list"))
         return render_template("template_set_form.html", template_set=None, sections=[])
+
+    @app.route("/template-sets/bootstrap/zerostage", methods=["POST"])
+    def template_set_bootstrap_zerostage():
+        with Session(engine) as session:
+            template_set = create_zerostage_starter_template_set(session)
+            session.commit()
+            return redirect(
+                url_for("template_set_edit", template_set_id=template_set.id)
+            )
 
     @app.route("/template-sets/<int:template_set_id>/edit", methods=["GET", "POST"])
     def template_set_edit(template_set_id: int):

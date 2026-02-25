@@ -27,6 +27,7 @@ from rackwright.models import (
     Row,
     SectionApplicationRule,
     Site,
+    TemplateSection,
     TemplateSet,
 )
 from rackwright.template_services import create_template_section, create_template_set
@@ -593,3 +594,35 @@ def test_project_detail_can_edit_site_room_row(client, tmp_path: Path) -> None:
         assert updated_site.address == "addr"
         assert updated_room.name == "room-new"
         assert updated_row.name == "row-new"
+
+
+def test_template_set_bootstrap_zerostage(client, tmp_path: Path) -> None:
+    db_url = f"sqlite:///{tmp_path / 'ui.db'}"
+    _seed_template(db_url)
+
+    res = client.post(
+        "/template-sets/bootstrap/zerostage",
+        follow_redirects=False,
+    )
+    assert res.status_code in (302, 303)
+    assert "/template-sets/" in res.headers["Location"]
+    assert "/edit" in res.headers["Location"]
+
+    engine = create_engine(db_url, future=True)
+    with Session(engine) as session:
+        starter = (
+            session.query(TemplateSet)
+            .filter(TemplateSet.name.like("ZeroStage Starter Pack%"))
+            .one()
+        )
+        sections = (
+            session.query(TemplateSection)
+            .filter(TemplateSection.template_set_id == starter.id)
+            .all()
+        )
+        categories = {s.category for s in sections}
+        assert "Network" in categories
+        assert "Power" in categories
+        assert "Physical" in categories
+        assert "Cutover" in categories
+        assert "Rollback" in categories
