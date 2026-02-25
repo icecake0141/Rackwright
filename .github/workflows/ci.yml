@@ -1,0 +1,74 @@
+# SPDX-License-Identifier: Apache-2.0
+# This file was modified with the assistance of an AI (Large Language Model). Review required for correctness, security, and licensing.
+
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  lint-and-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Detect code changes
+        id: changes
+        uses: dorny/paths-filter@v3
+        with:
+          filters: |
+            code:
+              - '**/*.py'
+              - 'pyproject.toml'
+              - '.github/workflows/**'
+              - 'alembic.ini'
+
+      - name: Set up Python
+        if: steps.changes.outputs.code == 'true'
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+          cache-dependency-path: |
+            pyproject.toml
+
+      - name: Install dependencies
+        if: steps.changes.outputs.code == 'true'
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e .[dev]
+
+      - name: Ruff
+        if: steps.changes.outputs.code == 'true'
+        run: python -m ruff check .
+
+      - name: Black (check)
+        if: steps.changes.outputs.code == 'true'
+        run: python -m black --check .
+
+      - name: Pytest
+        if: steps.changes.outputs.code == 'true'
+        run: |
+          if [ "${{ github.actor }}" = "dependabot[bot]" ]; then
+            python -m pytest -q tests/test_migration_step1.py tests/test_change_logging_step2.py
+          else
+            python -m pytest -q
+          fi
+
+      - name: Skip heavy checks for docs-only changes
+        if: steps.changes.outputs.code != 'true'
+        run: echo "No Python/CI-relevant changes detected; skipping lint/tests."
