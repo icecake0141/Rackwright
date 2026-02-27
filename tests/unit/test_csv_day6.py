@@ -30,7 +30,8 @@ def _run_snippet(snippet: str) -> None:
 
 
 def test_parse_network_cabling_csv_success() -> None:
-    _run_snippet("""
+    _run_snippet(
+        """
 from rackwright.infra.csv import parse_network_cabling_csv
 
 rows = parse_network_cabling_csv(
@@ -39,11 +40,13 @@ rows = parse_network_cabling_csv(
 )
 assert len(rows) == 1
 assert rows[0].values["a_device"] == "sw1"
-""")
+"""
+    )
 
 
 def test_serialize_network_cabling_csv_contains_header() -> None:
-    _run_snippet("""
+    _run_snippet(
+        """
 from rackwright.infra.csv import serialize_network_cabling_csv
 
 text = serialize_network_cabling_csv(
@@ -59,4 +62,5 @@ text = serialize_network_cabling_csv(
     )
 )
 assert text.startswith("a_device,a_port,a_port_type,b_device,b_port,b_port_type")
-""")
+"""
+    )

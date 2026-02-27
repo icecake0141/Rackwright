@@ -30,7 +30,8 @@ def _run_snippet(snippet: str) -> None:
 
 
 def test_template_set_rejects_duplicate_sections() -> None:
-    _run_snippet("""
+    _run_snippet(
+        """
 from rackwright.core import ConflictError, OutputTarget, TemplateSection, TemplateSet
 
 ts = TemplateSet(name="ZeroStage")
@@ -59,11 +60,13 @@ except ConflictError:
     pass
 else:
     raise SystemExit("expected ConflictError")
-""")
+"""
+    )
 
 
 def test_project_validation_and_revision_bump() -> None:
-    _run_snippet("""
+    _run_snippet(
+        """
 from rackwright.core import Project, ValidationError
 
 project = Project(name="  demo  ", owner="  alice  ")
@@ -79,11 +82,13 @@ except ValidationError:
     pass
 else:
     raise SystemExit("expected ValidationError")
-""")
+"""
+    )
 
 
 def test_artifact_version_marks_success_flags() -> None:
-    _run_snippet("""
+    _run_snippet(
+        """
 from rackwright.core import ArtifactMode, ArtifactVersion, OutputTarget
 
 version = ArtifactVersion(version_number=1, mode=ArtifactMode.ALL, fingerprint="abc")
@@ -92,4 +97,5 @@ version.mark_success(OutputTarget.EXCEL)
 assert version.success_word is True
 assert version.success_excel is True
 assert version.success_image is False
-""")
+"""
+    )

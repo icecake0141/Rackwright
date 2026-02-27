@@ -30,7 +30,8 @@ def _run_snippet(snippet: str) -> None:
 
 
 def test_generate_artifacts_usecase_all_mode_outputs_three_targets() -> None:
-    _run_snippet("""
+    _run_snippet(
+        """
 import tempfile
 from pathlib import Path
 
@@ -59,11 +60,13 @@ with tempfile.TemporaryDirectory() as tmpdir:
         )
     )
     assert len(result.outputs) == 3
-""")
+"""
+    )
 
 
 def test_generate_artifacts_usecase_filters_mode() -> None:
-    _run_snippet("""
+    _run_snippet(
+        """
 import tempfile
 from pathlib import Path
 
@@ -93,4 +96,5 @@ with tempfile.TemporaryDirectory() as tmpdir:
     )
     assert len(result.outputs) == 1
     assert result.outputs[0].artifact_type == "excel"
-""")
+"""
+    )

@@ -30,7 +30,8 @@ def _run_snippet(snippet: str) -> None:
 
 
 def test_bootstrap_zerostage_usecase_assigns_unique_name() -> None:
-    _run_snippet("""
+    _run_snippet(
+        """
 from rackwright.app.usecases import BootstrapZeroStageTemplateSetUseCase
 from rackwright.core import TemplateSet
 
@@ -55,11 +56,13 @@ repo = FakeTemplateRepo()
 created = BootstrapZeroStageTemplateSetUseCase(repo).execute()
 assert created.name == "ZeroStage Starter Pack 2"
 assert len(created.sections) == 8
-""")
+"""
+    )
 
 
 def test_create_project_from_template_set_usecase_creates_snapshot() -> None:
-    _run_snippet("""
+    _run_snippet(
+        """
 from rackwright.app.dto import CreateProjectFromTemplateInput
 from rackwright.app.usecases import CreateProjectFromTemplateSetUseCase
 from rackwright.core import OutputTarget, TemplateSection, TemplateSet
@@ -122,11 +125,13 @@ result = uc.execute(
 )
 assert result.name == "demo"
 assert snapshot_repo.calls == [("demo", "starter")]
-""")
+"""
+    )
 
 
 def test_create_project_from_template_set_raises_not_found() -> None:
-    _run_snippet("""
+    _run_snippet(
+        """
 from rackwright.app.dto import CreateProjectFromTemplateInput
 from rackwright.app.usecases import CreateProjectFromTemplateSetUseCase
 from rackwright.core import NotFoundError
@@ -165,4 +170,5 @@ except NotFoundError:
     pass
 else:
     raise SystemExit("expected NotFoundError")
-""")
+"""
+    )
