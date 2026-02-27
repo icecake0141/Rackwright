@@ -30,8 +30,7 @@ def _run_snippet(snippet: str) -> None:
 
 
 def test_template_set_repository_create_and_query() -> None:
-    _run_snippet(
-        """
+    _run_snippet("""
 from rackwright.core import OutputTarget, TemplateSection, TemplateSet
 from rackwright.infra.db import create_all_tables, create_sqlite_engine
 from rackwright.infra.db.repositories import SqlAlchemyTemplateSetRepository
@@ -58,13 +57,11 @@ with Session(engine) as session:
     assert loaded.name == "Starter"
     assert len(loaded.sections) == 1
     assert loaded.sections[0].output_targets[0].value == "word"
-"""
-    )
+""")
 
 
 def test_template_set_repository_name_conflict_maps_to_domain_error() -> None:
-    _run_snippet(
-        """
+    _run_snippet("""
 from rackwright.core import ConflictError, TemplateSet
 from rackwright.infra.db import create_all_tables, create_sqlite_engine
 from rackwright.infra.db.repositories import SqlAlchemyTemplateSetRepository
@@ -81,6 +78,4 @@ with Session(engine) as session:
         pass
     else:
         raise SystemExit("expected ConflictError")
-"""
-    )
-
+""")

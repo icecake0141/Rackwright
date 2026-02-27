@@ -22,4 +22,3 @@ def serialize_network_cabling_csv(rows: tuple[dict[str, str], ...]) -> str:
     for row in rows:
         writer.writerow({column: row.get(column, "") for column in columns})
     return output.getvalue()
-

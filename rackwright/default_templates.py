@@ -35,23 +35,17 @@ ZERO_STAGE_STARTER_SECTIONS = [
     StarterSection(
         category="Safety",
         section_order=1,
-        text=(
-            "Verify safety controls and escalation contacts before execution."
-        ),
+        text=("Verify safety controls and escalation contacts before execution."),
     ),
     StarterSection(
         category="Network",
         section_order=1,
-        text=(
-            "Apply network cabling work instruction and validate endpoint mapping."
-        ),
+        text=("Apply network cabling work instruction and validate endpoint mapping."),
     ),
     StarterSection(
         category="Power",
         section_order=1,
-        text=(
-            "Validate PDU bank/outlet assignments and required power path checks."
-        ),
+        text=("Validate PDU bank/outlet assignments and required power path checks."),
     ),
     StarterSection(
         category="Physical",
@@ -86,7 +80,9 @@ ZERO_STAGE_STARTER_SECTIONS = [
 
 def _next_available_template_set_name(session: Session, base_name: str) -> str:
     existing_names = set(
-        session.execute(select(TemplateSet.name).where(TemplateSet.name.like(f"{base_name}%")))
+        session.execute(
+            select(TemplateSet.name).where(TemplateSet.name.like(f"{base_name}%"))
+        )
         .scalars()
         .all()
     )

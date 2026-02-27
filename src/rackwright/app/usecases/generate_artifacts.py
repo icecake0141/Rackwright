@@ -61,4 +61,3 @@ class GenerateArtifactsUseCase:
         if mode == ArtifactMode.ALL:
             return {"word", "excel", "image"}
         return {mode.value}
-

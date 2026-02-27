@@ -365,7 +365,9 @@ def test_generate_excel_includes_field_operation_sheets(tmp_path: Path) -> None:
             work_steps.cell(row=i, column=4).value
             for i in range(2, work_steps.max_row + 1)
         ]
-        assert any(action and "Connect network cable N-100" in action for action in actions)
+        assert any(
+            action and "Connect network cable N-100" in action for action in actions
+        )
         assert any(action and "Location:" in action for action in actions)
         assert work_steps.cell(row=2, column=2).value in ("", None)
         assert work_steps.cell(row=3, column=2).value == 1

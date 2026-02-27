@@ -40,4 +40,3 @@ class SqlAlchemyProjectRepository:
             revision=record.revision,
             is_deleted=record.is_deleted,
         )
-

@@ -30,6 +30,7 @@ class ArtifactExportResult:
 class ArtifactExporter(Protocol):
     artifact_type: str
 
-    def export(self, payload: ArtifactRenderInput, out_dir: Path) -> ArtifactExportResult:
+    def export(
+        self, payload: ArtifactRenderInput, out_dir: Path
+    ) -> ArtifactExportResult:
         """Render one artifact and return its output path."""
-

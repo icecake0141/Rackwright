@@ -19,4 +19,3 @@ __all__ = [
     "parse_network_cabling_csv",
     "serialize_network_cabling_csv",
 ]
-

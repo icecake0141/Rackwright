@@ -25,8 +25,12 @@ class SqlAlchemyProjectTemplateSnapshotRepository:
     def __init__(self, session: Session):
         self._session = session
 
-    def create_from_template(self, *, project: Project, template_set: TemplateSet) -> None:
-        project_record = self._session.query(ProjectRecord).filter_by(name=project.name).one()
+    def create_from_template(
+        self, *, project: Project, template_set: TemplateSet
+    ) -> None:
+        project_record = (
+            self._session.query(ProjectRecord).filter_by(name=project.name).one()
+        )
         snapshot = TemplateSetSnapshotRecord(
             project_id=project_record.id,
             source_template_set_id=template_set.name,
@@ -41,7 +45,9 @@ class SqlAlchemyProjectTemplateSnapshotRepository:
                 target_type=section.target_type,
                 category=section.category,
                 section_order=section.section_order,
-                output_targets=json.dumps([item.value for item in section.output_targets]),
+                output_targets=json.dumps(
+                    [item.value for item in section.output_targets]
+                ),
                 applicable_roles=(
                     json.dumps(list(section.applicable_roles))
                     if section.applicable_roles is not None
@@ -59,4 +65,3 @@ class SqlAlchemyProjectTemplateSnapshotRepository:
                     filters_json=None,
                 )
             )
-

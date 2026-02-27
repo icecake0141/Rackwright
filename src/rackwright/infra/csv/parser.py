@@ -54,4 +54,3 @@ def parse_network_cabling_csv(csv_text: str) -> tuple[ParsedCsvRow, ...]:
                 )
         rows.append(ParsedCsvRow(row_number=row_number, values=normalized))
     return tuple(rows)
-

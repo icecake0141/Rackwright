@@ -17,4 +17,3 @@ class CreateProjectFromTemplateInput:
     project_name: str
     owner: str | None = None
     notes: str | None = None
-

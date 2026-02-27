@@ -23,4 +23,3 @@ class ConflictError(DomainError):
 
 class NotFoundError(DomainError):
     """Raised when an expected entity cannot be located."""
-

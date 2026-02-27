@@ -67,8 +67,8 @@ class ProjectRecord(Base):
     template_snapshots: Mapped[list[TemplateSetSnapshotRecord]] = relationship(
         back_populates="project", cascade="all, delete-orphan"
     )
-    section_application_rules: Mapped[list[SectionApplicationRuleRecord]] = relationship(
-        back_populates="project", cascade="all, delete-orphan"
+    section_application_rules: Mapped[list[SectionApplicationRuleRecord]] = (
+        relationship(back_populates="project", cascade="all, delete-orphan")
     )
 
 

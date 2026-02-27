@@ -30,8 +30,7 @@ def _run_snippet(snippet: str) -> None:
 
 
 def test_web_bootstrap_and_create_project_flow() -> None:
-    _run_snippet(
-        """
+    _run_snippet("""
 from rackwright.web import create_app
 
 app = create_app("sqlite:///:memory:")
@@ -56,13 +55,11 @@ created = client.post(
 )
 assert created.status_code == 201
 assert created.get_json()["name"] == "demo-project"
-"""
-    )
+""")
 
 
 def test_web_create_project_returns_404_for_missing_template() -> None:
-    _run_snippet(
-        """
+    _run_snippet("""
 from rackwright.web import create_app
 
 app = create_app("sqlite:///:memory:")
@@ -74,6 +71,4 @@ response = client.post(
     json={"template_set_name": "missing", "project_name": "demo"},
 )
 assert response.status_code == 404
-"""
-    )
-
+""")

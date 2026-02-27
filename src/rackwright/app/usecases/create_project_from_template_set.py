@@ -31,9 +31,7 @@ class CreateProjectFromTemplateSetUseCase:
     def execute(self, request: CreateProjectFromTemplateInput) -> Project:
         template_set = self._template_sets.get_by_name(request.template_set_name)
         if template_set is None:
-            raise NotFoundError(
-                f"template set not found: {request.template_set_name}"
-            )
+            raise NotFoundError(f"template set not found: {request.template_set_name}")
 
         created = self._projects.create(
             Project(
@@ -44,4 +42,3 @@ class CreateProjectFromTemplateSetUseCase:
         )
         self._snapshots.create_from_template(project=created, template_set=template_set)
         return created
-

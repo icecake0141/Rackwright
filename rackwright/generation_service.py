@@ -516,9 +516,7 @@ def _device_location_map(session: Session, project_id: int) -> dict[str, str]:
     )
     sites = (
         session.execute(
-            select(Site)
-            .where(Site.project_id == project_id)
-            .order_by(Site.id.asc())
+            select(Site).where(Site.project_id == project_id).order_by(Site.id.asc())
         )
         .scalars()
         .all()
@@ -799,9 +797,7 @@ def _write_excel(
         )
 
     ws_verification = wb.create_sheet("verification_checklist")
-    ws_verification.append(
-        ["item", "method", "result", "evidence", "notes", "step_no"]
-    )
+    ws_verification.append(["item", "method", "result", "evidence", "notes", "step_no"])
     ws_verification.append(
         [
             "Maintenance window and scope confirmed",

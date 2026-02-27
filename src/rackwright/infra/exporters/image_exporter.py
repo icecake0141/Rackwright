@@ -16,7 +16,9 @@ from ...app.ports.exporters import ArtifactExportResult, ArtifactRenderInput
 class PlaintextImageExporter:
     artifact_type = "image"
 
-    def export(self, payload: ArtifactRenderInput, out_dir: Path) -> ArtifactExportResult:
+    def export(
+        self, payload: ArtifactRenderInput, out_dir: Path
+    ) -> ArtifactExportResult:
         path = out_dir / f"{payload.project_name}_topology.svg.txt"
         path.write_text(
             (
@@ -28,4 +30,3 @@ class PlaintextImageExporter:
             encoding="utf-8",
         )
         return ArtifactExportResult(artifact_type=self.artifact_type, path=path)
-

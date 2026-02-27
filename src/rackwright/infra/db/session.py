@@ -25,4 +25,3 @@ def create_session_factory(engine: Engine) -> sessionmaker[Session]:
 
 def create_all_tables(engine: Engine) -> None:
     Base.metadata.create_all(engine)
-

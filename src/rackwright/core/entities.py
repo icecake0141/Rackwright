@@ -92,7 +92,9 @@ class TemplateSet:
         self.sections.append(section)
 
     def sorted_sections(self) -> list[TemplateSection]:
-        return sorted(self.sections, key=lambda item: (item.category, item.section_order))
+        return sorted(
+            self.sections, key=lambda item: (item.category, item.section_order)
+        )
 
     def _validate_duplicate_sections(self) -> None:
         seen: set[tuple[str, int]] = set()
