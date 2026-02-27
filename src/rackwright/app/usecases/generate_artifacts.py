@@ -12,7 +12,11 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from ...core import ArtifactMode, ValidationError
-from ..ports.exporters import ArtifactExporter, ArtifactExportResult, ArtifactRenderInput
+from ..ports.exporters import (
+    ArtifactExporter,
+    ArtifactExportResult,
+    ArtifactRenderInput,
+)
 
 
 @dataclass(frozen=True)
