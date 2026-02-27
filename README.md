@@ -46,10 +46,37 @@ Important:
 - Use debug=False in production.
 - Do not run Flask debug mode in production environments.
 
+## Run (Next Architecture Preview)
+
+Run the `src/`-based app with the migration launcher:
+
+python app_next.py
+
+Optional environment variables:
+
+- RACKWRIGHT_DATABASE_URL (default: sqlite:///./rackwright_next.db)
+- RACKWRIGHT_HOST (default: 127.0.0.1)
+- RACKWRIGHT_PORT (default: 8010)
+- RACKWRIGHT_DEBUG (default: 0)
+
 ## Tests
 
 Run all tests:
 
+python -m pytest -q
+
+## Development Quality Gates
+
+Install dev dependencies:
+
+pip install -e ".[dev]"
+
+Run formatting, linting, type checks, and tests:
+
+pre-commit run --all-files
+python -m ruff check .
+python -m black --check .
+python -m mypy src/rackwright rackwright tests
 python -m pytest -q
 
 ## Configuration
@@ -90,4 +117,5 @@ If RACKWRIGHT_DATA_DIR is not set, Rackwright uses ./data.
 - docs/spec: detailed specification
 - docs/plan: implementation plan
 - docs/checklists: post-implementation checklist
+- docs/architecture: staged layered architecture notes
 - tasks: task-by-task implementation units
