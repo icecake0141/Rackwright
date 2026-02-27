@@ -1,0 +1,30 @@
+# SPDX-License-Identifier: Apache-2.0
+# This file was modified with the assistance of an AI (Large Language Model). Review required for correctness, security, and licensing.
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
+      - id: check-merge-conflict
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.9.10
+    hooks:
+      - id: ruff
+        args: [--fix]
+  - repo: https://github.com/psf/black
+    rev: 25.1.0
+    hooks:
+      - id: black
+  - repo: local
+    hooks:
+      - id: check-license-llm-headers
+        name: check license and llm headers
+        entry: python3 scripts/check_file_headers.py
+        language: system
+        types_or: [python, html, javascript, ts, tsx, css]
+      - id: mypy
+        name: mypy
+        entry: python3 -m mypy src/rackwright rackwright tests
+        language: system
+        pass_filenames: false
