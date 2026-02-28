@@ -1,0 +1,43 @@
+<!doctype html>
+<!-- SPDX-License-Identifier: Apache-2.0 -->
+<!-- This file was modified with the assistance of an AI (Large Language Model). Review required for correctness, security, and licensing. -->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>{% if template_set %}Edit{% else %}Create{% endif %} Template Set</title>
+</head>
+<body>
+  <h1>{% if template_set %}Edit{% else %}Create{% endif %} Template Set</h1>
+  <form method="post">
+    <label>Name <input type="text" name="name" value="{{ template_set.name if template_set else '' }}"></label><br>
+    <label>Description <textarea name="description">{{ template_set.description if template_set and template_set.description else '' }}</textarea></label><br>
+    <button type="submit">Save</button>
+  </form>
+
+  <p><a href="{{ url_for('template_sets_list') }}">Back to list</a></p>
+
+  {% if template_set %}
+  <h2>Sections</h2>
+  <ul>
+    {% for section in sections %}
+      <li>
+        {{ section.category }} #{{ section.section_order }} ({{ section.target_type }})
+      </li>
+    {% else %}
+      <li>No sections.</li>
+    {% endfor %}
+  </ul>
+
+  <h3>Add Section</h3>
+  <form method="post" action="{{ url_for('template_section_new', template_set_id=template_set.id) }}">
+    <label>Target Type <input type="text" name="target_type" value="Project"></label><br>
+    <label>Category <input type="text" name="category" value="General"></label><br>
+    <label>Order <input type="number" name="section_order" value="1"></label><br>
+    <label>Output Targets JSON <input type="text" name="output_targets" value='["word"]'></label><br>
+    <label>Applicable Roles JSON <input type="text" name="applicable_roles" value=''></label><br>
+    <label>Text <textarea name="text"></textarea></label><br>
+    <button type="submit">Add Section</button>
+  </form>
+  {% endif %}
+</body>
+</html>

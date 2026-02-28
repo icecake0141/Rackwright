@@ -1,0 +1,56 @@
+<!doctype html>
+<!-- SPDX-License-Identifier: Apache-2.0 -->
+<!-- This file was modified with the assistance of an AI (Large Language Model). Review required for correctness, security, and licensing. -->
+<html lang="en">
+<head><meta charset="utf-8"><title>Versions {{ project.name }}</title></head>
+<body>
+  <h1>Versions: {{ project.name }}</h1>
+
+  <h2>Artifact Versions</h2>
+  <table border="1">
+    <tr><th>Version</th><th>Mode</th><th>Word</th><th>Excel</th><th>Image</th><th>Downloads</th></tr>
+    {% for v in versions %}
+      <tr>
+        <td>{{ v.version_number }}</td>
+        <td>{{ v.mode }}</td>
+        <td>{{ v.success_word }}</td>
+        <td>{{ v.success_excel }}</td>
+        <td>{{ v.success_image }}</td>
+        <td>
+          {% for f in v.files %}
+            <a href="{{ url_for('download_artifact', artifact_file_id=f.id) }}">{{ f.artifact_type }}</a>
+          {% endfor %}
+        </td>
+      </tr>
+    {% else %}
+      <tr><td colspan="6">No versions.</td></tr>
+    {% endfor %}
+  </table>
+
+  <h2>Compare Versions</h2>
+  <form method="post" action="{{ url_for('versions_compare', project_id=project.id) }}">
+    <label>From
+      <select name="from_version_id">
+        {% for v in versions %}<option value="{{ v.id }}">v{{ v.version_number }}</option>{% endfor %}
+      </select>
+    </label>
+    <label>To
+      <select name="to_version_id">
+        {% for v in versions %}<option value="{{ v.id }}">v{{ v.version_number }}</option>{% endfor %}
+      </select>
+    </label>
+    <button type="submit">Compare</button>
+  </form>
+
+  <h2>Diff Reports</h2>
+  <ul>
+    {% for d in diff_reports %}
+      <li>from {{ d.from_version_id }} to {{ d.to_version_id }} ({{ d.summary }})</li>
+    {% else %}
+      <li>No diff reports.</li>
+    {% endfor %}
+  </ul>
+
+  <p><a href="{{ url_for('project_detail', project_id=project.id) }}">Back to Project</a></p>
+</body>
+</html>

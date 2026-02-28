@@ -1,0 +1,54 @@
+<!doctype html>
+<!-- SPDX-License-Identifier: Apache-2.0 -->
+<!-- This file was modified with the assistance of an AI (Large Language Model). Review required for correctness, security, and licensing. -->
+<html lang="en">
+<head><meta charset="utf-8"><title>Rack {{ rack.name }}</title></head>
+<body>
+  <h1>Rack: {{ rack.name }}</h1>
+  <p>
+    <a href="{{ url_for('rack_detail', rack_id=rack.id, tab='basics') }}">Basics</a> |
+    <a href="{{ url_for('rack_detail', rack_id=rack.id, tab='layout') }}">Layout</a> |
+    <a href="{{ url_for('rack_detail', rack_id=rack.id, tab='power') }}">Power</a>
+  </p>
+
+  {% if tab == 'basics' %}
+  <form method="post">
+    <input type="hidden" name="action" value="save_basics">
+    <label>Name <input name="name" value="{{ rack.name }}"></label><br>
+    <label>Height U <input name="rack_height_u" value="{{ rack.rack_height_u }}"></label><br>
+    <button type="submit">Save Basics</button>
+  </form>
+  {% elif tab == 'layout' %}
+  <form method="post">
+    <input type="hidden" name="action" value="save_layout">
+    <table border="1">
+      <tr><th>Device</th><th>RU Start</th><th>RU Size</th><th>Orientation</th></tr>
+      {% for d in devices %}
+      <tr>
+        <td>{{ d.name }}</td>
+        <td><input name="ru_start_{{ d.id }}" value="{{ d.ru_start or '' }}"></td>
+        <td><input name="ru_size_{{ d.id }}" value="{{ d.ru_size or '' }}"></td>
+        <td><input name="orientation_{{ d.id }}" value="{{ d.orientation or '' }}"></td>
+      </tr>
+      {% endfor %}
+    </table>
+    <button type="submit">Save Layout</button>
+  </form>
+  {% else %}
+  <table border="1">
+    <tr><th>a_device</th><th>a_port</th><th>b_device</th><th>b_port</th><th>bank</th><th>outlet</th></tr>
+    {% for row in power_rows %}
+      <tr>
+        <td>{{ row.a_device }}</td><td>{{ row.a_port }}</td>
+        <td>{{ row.b_device }}</td><td>{{ row.b_port }}</td>
+        <td>{{ row.bank }}</td><td>{{ row.outlet }}</td>
+      </tr>
+    {% else %}
+      <tr><td colspan="6">No power cabling rows.</td></tr>
+    {% endfor %}
+  </table>
+  {% endif %}
+
+  <p><a href="{{ url_for('project_detail', project_id=rack.project_id) }}">Back to Project</a></p>
+</body>
+</html>

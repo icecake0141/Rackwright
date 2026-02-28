@@ -1,0 +1,68 @@
+<!doctype html>
+<!-- SPDX-License-Identifier: Apache-2.0 -->
+<!-- This file was modified with the assistance of an AI (Large Language Model). Review required for correctness, security, and licensing. -->
+<html lang="en">
+<head><meta charset="utf-8"><title>Device {{ device.name }}</title></head>
+<body>
+  <h1>Device: {{ device.name }}</h1>
+  <p>
+    <a href="{{ url_for('device_detail', device_id=device.id, tab='basics') }}">Basics</a> |
+    <a href="{{ url_for('device_detail', device_id=device.id, tab='cabling') }}">Cabling</a> |
+    <a href="{{ url_for('device_detail', device_id=device.id, tab='power') }}">Power</a> |
+    <a href="{{ url_for('device_detail', device_id=device.id, tab='settings') }}">Settings</a> |
+    <a href="{{ url_for('device_detail', device_id=device.id, tab='config') }}">Config Blocks</a>
+  </p>
+
+  {% if tab == 'basics' %}
+  <form method="post">
+    <input type="hidden" name="action" value="save_basics">
+    <label>Name <input name="name" value="{{ device.name }}"></label><br>
+    <label>Role <input name="role" value="{{ device.role }}"></label><br>
+    <label>Model <input name="model" value="{{ device.model or '' }}"></label><br>
+    <label>Serial <input name="serial" value="{{ device.serial or '' }}"></label><br>
+    <button type="submit">Save Basics</button>
+  </form>
+  {% elif tab == 'cabling' %}
+  <table border="1">
+    <tr><th>a_device</th><th>a_port</th><th>b_device</th><th>b_port</th><th>label</th></tr>
+    {% for row in cablings %}
+      <tr>
+        <td>{{ row.a_device }}</td><td>{{ row.a_port }}</td>
+        <td>{{ row.b_device }}</td><td>{{ row.b_port }}</td><td>{{ row.label or '' }}</td>
+      </tr>
+    {% else %}
+      <tr><td colspan="5">No cabling rows.</td></tr>
+    {% endfor %}
+  </table>
+  {% elif tab == 'power' %}
+  <form method="post">
+    <input type="hidden" name="action" value="save_power">
+    <label>Power Watts <input name="power_watts" value="{{ device.power_watts or '' }}"></label>
+    <button type="submit">Save Power</button>
+  </form>
+  <table border="1">
+    <tr><th>a_device</th><th>a_port</th><th>b_device</th><th>b_port</th><th>bank</th><th>outlet</th></tr>
+    {% for row in power_rows %}
+      <tr>
+        <td>{{ row.a_device }}</td><td>{{ row.a_port }}</td>
+        <td>{{ row.b_device }}</td><td>{{ row.b_port }}</td>
+        <td>{{ row.bank }}</td><td>{{ row.outlet }}</td>
+      </tr>
+    {% else %}
+      <tr><td colspan="6">No power rows.</td></tr>
+    {% endfor %}
+  </table>
+  {% elif tab == 'settings' %}
+  <form method="post">
+    <input type="hidden" name="action" value="save_settings">
+    <label>device_vars (plaintext allowed in initial release)</label><br>
+    <textarea name="device_vars" rows="10" cols="80">{{ device.device_vars or '' }}</textarea><br>
+    <button type="submit">Save Settings</button>
+  </form>
+  {% else %}
+  <p>Config Blocks are stored in device_vars for this phase.</p>
+  {% endif %}
+
+  <p><a href="{{ url_for('project_detail', project_id=device.project_id) }}">Back to Project</a></p>
+</body>
+</html>
