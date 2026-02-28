@@ -6,6 +6,7 @@ This file was created or modified with the assistance of an AI (Large Language M
 Review required for correctness, security, and licensing.
 """
 
+from .._legacy_flask_app import create_app
 from .dto import CreateProjectFromTemplateInput
 from .usecases import (
     BootstrapZeroStageTemplateSetUseCase,
@@ -17,6 +18,7 @@ from .usecases import (
 
 __all__ = [
     "BootstrapZeroStageTemplateSetUseCase",
+    "create_app",
     "CreateProjectFromTemplateInput",
     "CreateProjectFromTemplateSetUseCase",
     "GenerateArtifactsInput",

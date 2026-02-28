@@ -1,0 +1,128 @@
+<!doctype html>
+<!-- SPDX-License-Identifier: Apache-2.0 -->
+<!-- This file was modified with the assistance of an AI (Large Language Model). Review required for correctness, security, and licensing. -->
+<html lang="en">
+<head><meta charset="utf-8"><title>Project {{ project.name }}</title></head>
+<body>
+  <h1>Project: {{ project.name }}</h1>
+  <form method="post">
+    <input type="hidden" name="action" value="save_project">
+    <label>Name <input name="name" value="{{ project.name }}"></label><br>
+    <label>Owner <input name="owner" value="{{ project.owner or '' }}"></label><br>
+    <label>Notes <textarea name="notes">{{ project.notes or '' }}</textarea></label><br>
+    <button type="submit">Save</button>
+  </form>
+
+  <h2>Hierarchy Tree</h2>
+  <ul>
+    {% for site_node in hierarchy_tree %}
+      <li>
+        Site: {{ site_node.site.name }}
+        <form method="post">
+          <input type="hidden" name="action" value="update_site">
+          <input type="hidden" name="site_id" value="{{ site_node.site.id }}">
+          <strong>Edit Site</strong>
+          <label>Name <input name="site_name" value="{{ site_node.site.name }}"></label>
+          <label>Address <input name="site_address" value="{{ site_node.site.address or '' }}"></label>
+          <label>Entry <input name="site_entry_procedure" value="{{ site_node.site.entry_procedure or '' }}"></label>
+          <label>Contact <input name="site_contact_info" value="{{ site_node.site.contact_info or '' }}"></label>
+          <button type="submit">Save Site</button>
+        </form>
+        <ul>
+          {% for room_node in site_node.rooms %}
+            <li>
+              Room: {{ room_node.room.name }}
+              <form method="post">
+                <input type="hidden" name="action" value="update_room">
+                <input type="hidden" name="room_id" value="{{ room_node.room.id }}">
+                <strong>Edit Room</strong>
+                <label>Name <input name="room_name" value="{{ room_node.room.name }}"></label>
+                <button type="submit">Save Room</button>
+              </form>
+              <ul>
+                {% for row_node in room_node.rows %}
+                  <li>
+                    Row: {{ row_node.row.name }}
+                    <form method="post">
+                      <input type="hidden" name="action" value="update_row">
+                      <input type="hidden" name="row_id" value="{{ row_node.row.id }}">
+                      <strong>Edit Row</strong>
+                      <label>Name <input name="row_name" value="{{ row_node.row.name }}"></label>
+                      <button type="submit">Save Row</button>
+                    </form>
+                    <ul>
+                      {% for rack_node in row_node.racks %}
+                        <li>
+                          Rack: <a href="{{ url_for('rack_detail', rack_id=rack_node.rack.id, tab='basics') }}">{{ rack_node.rack.name }}</a>
+                          <ul>
+                            {% for device in rack_node.devices %}
+                              <li>Device: <a href="{{ url_for('device_detail', device_id=device.id, tab='basics') }}">{{ device.name }}</a></li>
+                            {% else %}
+                              <li>No devices.</li>
+                            {% endfor %}
+                          </ul>
+                        </li>
+                      {% else %}
+                        <li>No racks.</li>
+                      {% endfor %}
+                    </ul>
+                  </li>
+                {% else %}
+                  <li>No rows.</li>
+                {% endfor %}
+              </ul>
+            </li>
+          {% else %}
+            <li>No rooms.</li>
+          {% endfor %}
+        </ul>
+      </li>
+    {% else %}
+      <li>No sites.</li>
+    {% endfor %}
+  </ul>
+
+  <h3>Unassigned Racks</h3>
+  <ul>
+    {% for rack in unassigned_racks %}
+      <li><a href="{{ url_for('rack_detail', rack_id=rack.id, tab='basics') }}">{{ rack.name }}</a></li>
+    {% else %}
+      <li>No unassigned racks.</li>
+    {% endfor %}
+  </ul>
+
+  <h3>Unassigned Devices</h3>
+  <ul>
+    {% for device in unassigned_devices %}
+      <li><a href="{{ url_for('device_detail', device_id=device.id, tab='basics') }}">{{ device.name }}</a></li>
+    {% else %}
+      <li>No unassigned devices.</li>
+    {% endfor %}
+  </ul>
+
+  <h2>Quick Add</h2>
+  <form method="post" action="{{ url_for('rack_new', project_id=project.id) }}">
+    <label>Rack Name <input name="name"></label>
+    <label>HeightU <input name="rack_height_u" value="42"></label>
+    <button type="submit">Add Rack</button>
+  </form>
+
+  <form method="post" action="{{ url_for('device_new', project_id=project.id) }}">
+    <label>Device Name <input name="name"></label>
+    <label>Role <input name="role" value="Other"></label>
+    <label>Rack ID <input name="rack_id"></label>
+    <label>RU Start <input name="ru_start"></label>
+    <label>RU Size <input name="ru_size"></label>
+    <button type="submit">Add Device</button>
+  </form>
+
+  <p>
+    <a href="{{ url_for('project_cabling', project_id=project.id) }}">Cabling</a> |
+    <a href="{{ url_for('project_generate', project_id=project.id) }}">Generate</a> |
+    <a href="{{ url_for('project_versions', project_id=project.id) }}">Versions</a> |
+    <a href="{{ url_for('project_section_rules', project_id=project.id) }}">Section Rules</a> |
+    <a href="{{ url_for('project_errors', project_id=project.id) }}">Errors</a>
+  </p>
+  <p><a href="{{ url_for('dashboard') }}">Back to Dashboard</a></p>
+</body>
+</html>

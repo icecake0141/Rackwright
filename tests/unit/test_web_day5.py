@@ -76,4 +76,3 @@ response = client.post(
 assert response.status_code == 404
 """
     )
-

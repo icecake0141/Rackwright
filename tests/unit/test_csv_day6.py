@@ -64,4 +64,3 @@ text = serialize_network_cabling_csv(
 assert text.startswith("a_device,a_port,a_port_type,b_device,b_port,b_port_type")
 """
     )
-

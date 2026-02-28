@@ -19,4 +19,3 @@ def register_routes(app: Flask) -> None:
     app.register_blueprint(dashboard_bp)
     app.register_blueprint(template_sets_bp)
     app.register_blueprint(projects_bp)
-

@@ -19,4 +19,3 @@ def dashboard():
         "service": "rackwright-next",
         "status": "ok",
     }
-

@@ -1,0 +1,100 @@
+<!doctype html>
+<!-- SPDX-License-Identifier: Apache-2.0 -->
+<!-- This file was modified with the assistance of an AI (Large Language Model). Review required for correctness, security, and licensing. -->
+<html lang="en">
+<head><meta charset="utf-8"><title>Cabling {{ project.name }}</title></head>
+<body>
+  <h1>Cabling: {{ project.name }}</h1>
+  {% if message %}<p><strong>{{ message }}</strong></p>{% endif %}
+
+  <form method="get">
+    <label>Filter rack
+      <select name="rack">
+        <option value="">(all)</option>
+        {% for rack in rack_options %}
+          <option value="{{ rack.id }}" {% if filter_rack == (rack.id|string) %}selected{% endif %}>{{ rack.name }}</option>
+        {% endfor %}
+      </select>
+    </label>
+    <label>Filter row
+      <select name="row">
+        <option value="">(all)</option>
+        {% for row_opt in row_options %}
+          <option value="{{ row_opt.id }}" {% if filter_row == (row_opt.id|string) %}selected{% endif %}>{{ row_opt.name }}</option>
+        {% endfor %}
+      </select>
+    </label>
+    <label>Filter device
+      <select name="device">
+        <option value="">(all)</option>
+        {% for dev in device_options %}
+          <option value="{{ dev }}" {% if filter_device == dev %}selected{% endif %}>{{ dev }}</option>
+        {% endfor %}
+      </select>
+    </label>
+    <button type="submit">Apply Filter</button>
+  </form>
+
+  <h2>Network Cabling (Table Edit)</h2>
+  <table border="1">
+    <tr><th>a_device</th><th>a_port</th><th>b_device</th><th>b_port</th><th>cable_type</th><th>label</th><th>notes</th><th>Save</th></tr>
+    {% for row in rows %}
+    <tr>
+      <form method="post">
+        <input type="hidden" name="action" value="save_row">
+        <input type="hidden" name="row_id" value="{{ row.id }}">
+        <td>{{ row.a_device }}</td>
+        <td>{{ row.a_port }}</td>
+        <td>{{ row.b_device }}</td>
+        <td>{{ row.b_port }}</td>
+        <td><input name="cable_type" value="{{ row.cable_type or '' }}"></td>
+        <td><input name="label" value="{{ row.label or '' }}"></td>
+        <td><input name="notes" value="{{ row.notes or '' }}"></td>
+        <td><button type="submit">Save</button></td>
+      </form>
+    </tr>
+    {% else %}
+      <tr><td colspan="8">No rows.</td></tr>
+    {% endfor %}
+  </table>
+
+  <h2>CSV Import / Export</h2>
+  {% if dry_run_unknown %}
+  <p>Unknown devices: {{ dry_run_unknown|join(', ') }}</p>
+  {% endif %}
+  <form method="post">
+    <input type="hidden" name="action" value="import_csv">
+    <label>Type
+      <select name="csv_type">
+        <option value="network">network</option>
+        <option value="power">power</option>
+      </select>
+    </label><br>
+    <label>File Name <input name="file_name" value="upload.csv"></label><br>
+    <label>CSV Text</label><br>
+    <textarea name="csv_text" rows="8" cols="100"></textarea><br>
+    <label><input type="checkbox" name="confirm_create_placeholders" value="1"> Confirm create placeholders for unknown devices</label><br>
+    <button type="submit">Import</button>
+  </form>
+  <p>
+    <a href="{{ url_for('export_cabling', project_id=project.id, csv_type='network') }}">Export Network CSV</a> |
+    <a href="{{ url_for('export_cabling', project_id=project.id, csv_type='power') }}">Export Power CSV</a>
+  </p>
+
+  <h2>Power Cabling</h2>
+  <table border="1">
+    <tr><th>a_device</th><th>a_port</th><th>b_device</th><th>b_port</th><th>bank</th><th>outlet</th></tr>
+    {% for row in power_rows %}
+      <tr>
+        <td>{{ row.a_device }}</td><td>{{ row.a_port }}</td>
+        <td>{{ row.b_device }}</td><td>{{ row.b_port }}</td>
+        <td>{{ row.bank }}</td><td>{{ row.outlet }}</td>
+      </tr>
+    {% else %}
+      <tr><td colspan="6">No power rows.</td></tr>
+    {% endfor %}
+  </table>
+
+  <p><a href="{{ url_for('project_detail', project_id=project.id) }}">Back to Project</a></p>
+</body>
+</html>

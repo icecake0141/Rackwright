@@ -54,4 +54,8 @@ check_untyped_defs = true
 exclude = ["alembic/versions/"]
 
 [tool.setuptools.packages.find]
+where = ["src"]
 include = ["rackwright*"]
+
+[tool.setuptools.package-data]
+rackwright = ["templates/*.html"]

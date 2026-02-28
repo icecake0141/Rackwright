@@ -107,4 +107,3 @@ class BootstrapZeroStageTemplateSetUseCase:
             if candidate not in existing_names:
                 return candidate
             suffix += 1
-

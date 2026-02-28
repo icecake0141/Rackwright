@@ -23,7 +23,9 @@ class SqlAlchemyTemplateSetRepository:
         self._session = session
 
     def create(self, template_set: TemplateSet) -> TemplateSet:
-        record = TemplateSetRecord(name=template_set.name, description=template_set.description)
+        record = TemplateSetRecord(
+            name=template_set.name, description=template_set.description
+        )
         try:
             self._session.add(record)
             self._session.flush()
@@ -82,7 +84,9 @@ class SqlAlchemyTemplateSetRepository:
         return TemplateSet(
             name=record.name,
             description=record.description,
-            sections=[SqlAlchemyTemplateSetRepository._to_section(item) for item in sections],
+            sections=[
+                SqlAlchemyTemplateSetRepository._to_section(item) for item in sections
+            ],
         )
 
     @staticmethod

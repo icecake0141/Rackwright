@@ -99,4 +99,3 @@ assert version.success_excel is True
 assert version.success_image is False
 """
     )
-

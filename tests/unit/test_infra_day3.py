@@ -83,4 +83,3 @@ with Session(engine) as session:
         raise SystemExit("expected ConflictError")
 """
     )
-

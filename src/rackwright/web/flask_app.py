@@ -35,4 +35,3 @@ def create_app(database_url: str = "sqlite:///./rackwright_next.db") -> Flask:
         return {"error": str(exc)}, 409
 
     return app
-

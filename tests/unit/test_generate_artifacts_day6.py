@@ -98,4 +98,3 @@ with tempfile.TemporaryDirectory() as tmpdir:
     assert result.outputs[0].artifact_type == "excel"
 """
     )
-

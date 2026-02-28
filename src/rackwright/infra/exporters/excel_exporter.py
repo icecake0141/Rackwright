@@ -16,7 +16,9 @@ from ...app.ports.exporters import ArtifactExportResult, ArtifactRenderInput
 class PlaintextExcelExporter:
     artifact_type = "excel"
 
-    def export(self, payload: ArtifactRenderInput, out_dir: Path) -> ArtifactExportResult:
+    def export(
+        self, payload: ArtifactRenderInput, out_dir: Path
+    ) -> ArtifactExportResult:
         path = out_dir / f"{payload.project_name}_handover.xlsx.txt"
         body = "\n".join(payload.sections)
         path.write_text(
@@ -24,4 +26,3 @@ class PlaintextExcelExporter:
             encoding="utf-8",
         )
         return ArtifactExportResult(artifact_type=self.artifact_type, path=path)
-
